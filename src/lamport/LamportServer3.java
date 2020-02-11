@@ -6,12 +6,12 @@ import java.util.*;
 import java.net.*; 
   
 // Server class 
-public class LamportServer2
+public class LamportServer3
 { 
     public static void main(String[] args) throws IOException  
     { 
         // server is listening on port 5056 
-        ServerSocket ss = new ServerSocket(5058); 
+        ServerSocket ss = new ServerSocket(5059); 
           
         // running infinite loop for getting 
         // client request 
@@ -42,7 +42,7 @@ public class LamportServer2
                 /******/
                 
                 // create a new thread object 
-                Thread t = new ClientHandler2(s, dis, dos); 
+                Thread t = new ClientHandler3(s, dis, dos); 
   
                 // Invoking the start() method 
                 t.start(); 
@@ -57,7 +57,7 @@ public class LamportServer2
                 /******/
                 
                 // create a new thread object 
-                Thread serverThread = new ServerHandler2(s, dis, dos); 
+                Thread serverThread = new ServerHandler3(s, dis, dos); 
                 serverThread.start();
                 }
                 
@@ -72,7 +72,7 @@ public class LamportServer2
 } 
   
 // ClientHandler class 
-class ClientHandler2 extends Thread  
+class ClientHandler3 extends Thread  
 { 
     DateFormat fordate = new SimpleDateFormat("yyyy/MM/dd"); 
     DateFormat fortime = new SimpleDateFormat("hh:mm:ss"); 
@@ -90,7 +90,7 @@ class ClientHandler2 extends Thread
       
   
     // Constructor 
-    public ClientHandler2(Socket s, DataInputStream dis, DataOutputStream dos)  
+    public ClientHandler3(Socket s, DataInputStream dis, DataOutputStream dos)  
     { 
         this.s = s; 
         this.dis = dis; 
@@ -174,20 +174,20 @@ class ClientHandler2 extends Thread
                 
                 dis1 = new DataInputStream(s1.getInputStream()); 
                 dos1 = new DataOutputStream(s1.getOutputStream()); 
-                dos1.writeUTF("server2 to Server1 socket"); 
+                dos1.writeUTF("server3 to Server1 socket"); 
                 
                 
-                //server 3
+                //server 2
                 
                 // getting localhost ip 
                 InetAddress ip2 = InetAddress.getByName("localhost"); 
                 // establish the connection with server port 5059
-                Socket s2 = new Socket(ip2, 5059); 
+                Socket s2 = new Socket(ip2, 5058); 
                 // obtaining input and out streams
                 
                 dis2 = new DataInputStream(s2.getInputStream()); 
                 dos2 = new DataOutputStream(s2.getOutputStream()); 
-                dos2.writeUTF("server2 to Server3 socket"); 
+                dos2.writeUTF("server3 to Server2 socket"); 
                 
                  }
          catch (Exception e){ 
@@ -199,7 +199,7 @@ class ClientHandler2 extends Thread
     
     
     // ClientHandler class 
-class ServerHandler2 extends Thread  
+class ServerHandler3 extends Thread  
 { 
     DateFormat fordate = new SimpleDateFormat("yyyy/MM/dd"); 
     DateFormat fortime = new SimpleDateFormat("hh:mm:ss"); 
@@ -209,7 +209,7 @@ class ServerHandler2 extends Thread
       
   
     // Constructor 
-    public ServerHandler2(Socket s, DataInputStream dis, DataOutputStream dos)  
+    public ServerHandler3(Socket s, DataInputStream dis, DataOutputStream dos)  
     { 
         this.s = s; 
         this.dis = dis; 
@@ -222,7 +222,7 @@ class ServerHandler2 extends Thread
         String received; 
         String toreturn; 
         try { 
-        dos.writeUTF("what update from you server 1 to me server 2"); 
+        dos.writeUTF("what update from you server 1 to me server 3"); 
          } catch (IOException e) { 
                 e.printStackTrace(); 
             }

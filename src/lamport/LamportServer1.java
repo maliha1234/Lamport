@@ -46,6 +46,19 @@ public class LamportServer1
                 // Invoking the start() method 
                 t.start(); 
             }
+                else if(received.contains("Server")) { 
+                    // obtaining input and out streams 
+                DataInputStream dis = new DataInputStream(s.getInputStream()); 
+                DataOutputStream dos = new DataOutputStream(s.getOutputStream()); 
+                  
+                System.out.println("Assigning new thread for this server"); 
+                    
+                /******/
+                
+                // create a new thread object 
+                Thread serverThread = new ServerHandler(s, dis, dos); 
+                serverThread.start();
+                }
                   
             } 
             catch (Exception e){ 
@@ -60,12 +73,18 @@ public class LamportServer1
 class ClientHandler extends Thread  
 { 
     DateFormat fordate = new SimpleDateFormat("yyyy/MM/dd"); 
-    DateFormat fortime = new SimpleDateFormat("hh:mm:ss"); 
+    DateFormat fortime = new SimpleDateFormat("hh:mm:ss");   
     final DataInputStream dis; 
     final DataOutputStream dos; 
     final Socket s; 
     String name;
     String message;
+    
+    DataInputStream dis1;
+    DataOutputStream dos1;
+    
+    DataInputStream dis2;
+    DataOutputStream dos2;
       
   
     // Constructor 
@@ -84,8 +103,12 @@ class ClientHandler extends Thread
         
         /****/
          try 
-            { 
+            {
+                setServerSocket();
+                
+                
                  // getting localhost ip 
+              /*
                 InetAddress ip = InetAddress.getByName("localhost"); 
                 // establish the connection with server port 5056 
                 Socket s1 = new Socket(ip, 5058); 
@@ -93,7 +116,7 @@ class ClientHandler extends Thread
                 
                 DataInputStream dis1 = new DataInputStream(s1.getInputStream()); 
                 DataOutputStream dos1 = new DataOutputStream(s1.getOutputStream()); 
-                dos1.writeUTF("Server"); 
+                dos1.writeUTF("Server"); */
                 
                 
                  // create a new thread object 
@@ -114,8 +137,16 @@ class ClientHandler extends Thread
                   
                 // receive the answer from client 
                 received = dis.readUTF(); 
+                
+                //from server 2
                 String received1 = dis1.readUTF(); 
                 System.out.println(received1); 
+                
+                //from server 3
+                String received2 = dis2.readUTF(); 
+                System.out.println(received2); 
+                
+                
                 
                   
                 if(received.equals("Exit")) 
@@ -168,6 +199,42 @@ class ClientHandler extends Thread
             e.printStackTrace(); 
         } 
     }
+    
+    public void setServerSocket(){
+    
+          try 
+            { 
+                
+                //server 2
+                // getting localhost ip 
+                InetAddress ip = InetAddress.getByName("localhost"); 
+                // establish the connection with server port 5058 
+                Socket s1 = new Socket(ip, 5058); 
+                 // obtaining input and out streams
+                
+                dis1 = new DataInputStream(s1.getInputStream()); 
+                dos1 = new DataOutputStream(s1.getOutputStream()); 
+                dos1.writeUTF("Server2"); 
+                
+                
+                //server 3
+                
+                // getting localhost ip 
+                InetAddress ip2 = InetAddress.getByName("localhost"); 
+                // establish the connection with server port 5059
+                Socket s2 = new Socket(ip2, 5059); 
+                // obtaining input and out streams
+                
+                dis2 = new DataInputStream(s2.getInputStream()); 
+                dos2 = new DataOutputStream(s2.getOutputStream()); 
+                dos2.writeUTF("Server3"); 
+                
+                 }
+         catch (Exception e){ 
+                e.printStackTrace(); 
+            } 
+    
+    }
          
 }
     
@@ -196,7 +263,7 @@ class ServerHandler extends Thread
         String received; 
         String toreturn; 
         try { 
-        dos.writeUTF("Server"); 
+        dos.writeUTF("from Server 1 to server 2"); 
         //dos.writeUTF("sending connection request to another server"); 
         }
         catch(IOException e){ 
