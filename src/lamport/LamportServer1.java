@@ -93,17 +93,15 @@ class ClientHandler extends Thread
                 
                 DataInputStream dis1 = new DataInputStream(s1.getInputStream()); 
                 DataOutputStream dos1 = new DataOutputStream(s1.getOutputStream()); 
+                dos1.writeUTF("Server"); 
+                
                 
                  // create a new thread object 
-                Thread sThread = new ServerHandler(s1, dis1, dos1); 
+                //Thread sThread = new ServerHandler(s1, dis1, dos1); 
   
                 // Invoking the start() method 
-                sThread.start(); 
-                
-            }
-         catch (Exception e){ 
-                e.printStackTrace(); 
-            } 
+              //  sThread.start(); 
+            
         /*****/
         
         while (true)  
@@ -116,6 +114,9 @@ class ClientHandler extends Thread
                   
                 // receive the answer from client 
                 received = dis.readUTF(); 
+                String received1 = dis1.readUTF(); 
+                System.out.println(received1); 
+                
                   
                 if(received.equals("Exit")) 
                 {  
@@ -150,7 +151,12 @@ class ClientHandler extends Thread
             } catch (IOException e) { 
                 e.printStackTrace(); 
             } 
-        } 
+        }
+            
+            }
+         catch (Exception e){ 
+                e.printStackTrace(); 
+            } 
           
         try
         { 
@@ -162,6 +168,7 @@ class ClientHandler extends Thread
             e.printStackTrace(); 
         } 
     }
+         
 }
     
     
@@ -195,17 +202,20 @@ class ServerHandler extends Thread
         catch(IOException e){ 
             e.printStackTrace(); 
         } 
+        
+        
+        
         while (true)  
         { 
             try { 
   
                 // Ask user what he wants 
-                dos.writeUTF("sending to server everytime inside run"); 
+           //     dos.writeUTF("sending to server everytime inside run"); 
                   
                 // receive the answer from client 
                 received = dis.readUTF(); 
                 System.out.println(received); 
-                dos.writeUTF("sending from 1 to server 2"); 
+                //dos.writeUTF("sending from 1 to server 2"); 
                   
                 if(received.equals("Exit")) 
                 {  

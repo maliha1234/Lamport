@@ -178,12 +178,18 @@ class ServerHandler2 extends Thread
     { 
         String received; 
         String toreturn; 
+        try { 
+        dos.writeUTF("what update from you server 1 to me server 2"); 
+         } catch (IOException e) { 
+                e.printStackTrace(); 
+            }
+        
         while (true)  
         { 
             try { 
   
                 // Ask user what he wants 
-                dos.writeUTF("what update from you server 1 to me server 2"); 
+              //  dos.writeUTF("what update from you server 1 to me server 2"); 
                   
                 // receive the answer from client 
                 received = dis.readUTF(); 
