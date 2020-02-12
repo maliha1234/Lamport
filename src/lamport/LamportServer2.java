@@ -8,6 +8,7 @@ import java.net.*;
 // Server class 
 public class LamportServer2
 { 
+    public static Queue<String> q2 = new LinkedList<>(); 
     public static void main(String[] args) throws IOException  
     { 
         // server is listening on port 5056 
@@ -48,6 +49,9 @@ public class LamportServer2
                 t.start(); 
             }
                 else if(received.contains("Server")) { 
+                    q2.add(received);
+                
+                    System.out.println(q2); 
                     // obtaining input and out streams 
                 DataInputStream dis = new DataInputStream(s.getInputStream()); 
                 DataOutputStream dos = new DataOutputStream(s.getOutputStream()); 

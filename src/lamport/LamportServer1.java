@@ -4,10 +4,14 @@ import java.io.*;
 import java.text.*; 
 import java.util.*; 
 import java.net.*; 
+
+import java.util.LinkedList; 
+import java.util.Queue; 
   
 // Server class 
 public class LamportServer1
 { 
+    public static Queue<String> q = new LinkedList<>(); 
     public static void main(String[] args) throws IOException  
     { 
         // server is listening on port 5056 
@@ -31,6 +35,9 @@ public class LamportServer1
                 if(received.contains("Client")) {
                     
                 System.out.println("A new client is connected : " + s); 
+                q.add(received);
+                
+                System.out.println(q); 
                   
                 // obtaining input and out streams 
                 DataInputStream dis = new DataInputStream(s.getInputStream()); 
