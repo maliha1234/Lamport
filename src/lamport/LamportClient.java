@@ -12,6 +12,7 @@ import java.util.Scanner;
 // Client class 
 public class LamportClient  
 { 
+    static int count = 0;
     public static void main(String[] args) throws IOException  
     { 
         try
@@ -28,7 +29,8 @@ public class LamportClient
             DataInputStream dis = new DataInputStream(s.getInputStream()); 
             DataOutputStream dos = new DataOutputStream(s.getOutputStream()); 
       
-            dos.writeUTF("Client"); 
+            dos.writeUTF("Client" + count ); 
+            count++;
             // the following loop performs the exchange of 
             // information between client and client handler 
             while (true)  

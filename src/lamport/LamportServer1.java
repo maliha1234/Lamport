@@ -7,12 +7,16 @@ import java.net.*;
 
 import java.util.LinkedList; 
 import java.util.Queue; 
+import java.util.logging.Level;
+import java.util.logging.Logger;
   
 // Server class 
 public class LamportServer1
 { 
     public static Queue<String> q = new LinkedList<>(); 
     public static int flag =0;
+    
+    public static Map<String,ClientHandler> threads = new HashMap<String,ClientHandler>();
     
     public static void main(String[] args) throws IOException  
     { 
@@ -55,6 +59,7 @@ public class LamportServer1
                 
                 // create a new thread object 
                 Thread t = new ClientHandler(s, dis, dos); 
+                threads.put(received,(ClientHandler) t);
   
                 // Invoking the start() method 
                 t.start(); 
@@ -88,7 +93,20 @@ public class LamportServer1
         t.schedule(new TimerTask() {
         @Override
          public void run() {
-          System.out.println("Hello World" + q);
+            try {
+                System.out.println("Hello World" + q);
+                if(!q.isEmpty()){
+                String a = q.peek(); 
+                if(!threads.isEmpty()){
+                threads.get(a).dos1.writeUTF(a + "Server2");
+                threads.get(a).dos2.writeUTF(a + "Server3");}
+                }
+                
+            } catch (IOException ex) {
+                Logger.getLogger(LamportServer1.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+          
          }
        }, 0, 5000);
         
