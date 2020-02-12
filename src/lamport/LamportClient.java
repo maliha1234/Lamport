@@ -29,7 +29,7 @@ public class LamportClient
             DataInputStream dis = new DataInputStream(s.getInputStream()); 
             DataOutputStream dos = new DataOutputStream(s.getOutputStream()); 
       
-            dos.writeUTF("Client" + count ); 
+            dos.writeUTF("Client" + count + "write" ); 
             count++;
             // the following loop performs the exchange of 
             // information between client and client handler 
