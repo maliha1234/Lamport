@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 // Server class 
 public class LamportServer1 {
 
-    public static Queue<String> q = new LinkedList<>();
+ //   public static Queue<String> q = new LinkedList<>();
     public static List<QueueClass> qList = new ArrayList<>();
     public static int flag = 0;
 
@@ -44,9 +44,9 @@ public class LamportServer1 {
                 if (received.contains("Client")) {
 
                     System.out.println("A new client is connected : " + s);
-                    q.add(received);
+             //       q.add(received);
 
-                    System.out.println(q);
+             //       System.out.println(q);
 
                     // obtaining input and out streams 
                     DataInputStream dis = new DataInputStream(s.getInputStream());
@@ -68,6 +68,8 @@ public class LamportServer1 {
                     queueClass.timestamp = System.currentTimeMillis();
                     queueClass.clientClassHandler = (ClientHandler) t;
                     qList.add(queueClass);
+
+                    sortQueue();
 
                     //
                     // Invoking the start() method 
@@ -93,6 +95,7 @@ public class LamportServer1 {
                     queueClass.serverHandler = (ServerHandler) serverThread;
                     qList.add(queueClass);
                     //
+                    sortQueue();
 
                     serverThread.start();
                 }
@@ -111,7 +114,7 @@ public class LamportServer1 {
             @Override
             public void run() {
                 try {
-                    System.out.println("Hello World" + q);
+                    System.out.println("Hello World" + qList);
                     if (!qList.isEmpty()) {
                         QueueClass qClass = qList.get(0);
                         String task = qList.get(0).task;
@@ -122,6 +125,10 @@ public class LamportServer1 {
 
                             qClass.clientClassHandler.dos.writeUTF(task + "Client3");
                         }
+                        
+                        for(QueueClass qq : qList){
+                        System.out.println("Hello World" + qq.timestamp + "\n");
+                        }
                     }
 
                 } catch (IOException ex) {
@@ -130,6 +137,28 @@ public class LamportServer1 {
 
             }
         }, 0, 5000);
+
+    }
+
+    public static void sortQueue() {
+
+        for (int j = 0; j < qList.size(); j++) {
+
+            for (int i = j + 1; i < qList.size(); i++) {
+
+                if (qList.get(i).timestamp < qList.get(j).timestamp) {
+
+                    QueueClass q = qList.get(j);
+
+                    qList.set(j, qList.get(i));
+
+                    qList.set(i, q);
+
+                }
+
+            }
+
+        }
 
     }
 }
