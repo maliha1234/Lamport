@@ -12,10 +12,16 @@ import java.util.Queue;
 public class LamportServer1
 { 
     public static Queue<String> q = new LinkedList<>(); 
+    public static int flag =0;
+    
     public static void main(String[] args) throws IOException  
     { 
         // server is listening on port 5056 
         ServerSocket ss = new ServerSocket(5057); 
+        if(flag == 0){
+          startQueueThread();
+          flag = 1;
+        }
           
         // running infinite loop for getting 
         // client request 
@@ -73,6 +79,19 @@ public class LamportServer1
                 e.printStackTrace(); 
             } 
         } 
+    }
+    
+    
+    public static void startQueueThread () throws IOException  {
+        Timer t = new Timer();
+        System.out.println("Hello World Timer ini");
+        t.schedule(new TimerTask() {
+        @Override
+         public void run() {
+          System.out.println("Hello World" + q);
+         }
+       }, 0, 5000);
+        
     } 
 } 
   
@@ -336,5 +355,138 @@ class ServerHandler extends Thread
             e.printStackTrace(); 
         } 
     }
+    
+    
+    // ClientHandler class 
+class QueueHandler extends Thread  
+{ 
+    DateFormat fordate = new SimpleDateFormat("yyyy/MM/dd"); 
+    DateFormat fortime = new SimpleDateFormat("hh:mm:ss");   
+    final DataInputStream dis; 
+    final DataOutputStream dos; 
+    final Socket s; 
+    String name;
+    String message;
+    
+    DataInputStream dis1;
+    DataOutputStream dos1;
+    
+    DataInputStream dis2;
+    DataOutputStream dos2;
+      
+  
+    // Constructor 
+    public QueueHandler(Socket s, DataInputStream dis, DataOutputStream dos)  
+    { 
+        this.s = s; 
+        this.dis = dis; 
+        this.dos = dos; 
+    } 
+  
+    @Override
+    public void run()  
+    { 
+        String received; 
+        String toreturn; 
+        
+        /****/
+         try 
+            {
+              
+                
+                
+                 // getting localhost ip 
+              /*
+                InetAddress ip = InetAddress.getByName("localhost"); 
+                // establish the connection with server port 5056 
+                Socket s1 = new Socket(ip, 5058); 
+        // obtaining input and out streams
+                
+                DataInputStream dis1 = new DataInputStream(s1.getInputStream()); 
+                DataOutputStream dos1 = new DataOutputStream(s1.getOutputStream()); 
+                dos1.writeUTF("Server"); */
+                
+                
+                 // create a new thread object 
+                //Thread sThread = new ServerHandler(s1, dis1, dos1); 
+  
+                // Invoking the start() method 
+              //  sThread.start(); 
+            
+        /*****/
+        
+        while (true)  
+        { 
+            try { 
+  
+                // Ask user what he wants 
+                dos.writeUTF("What do you want?[Date | Time]..\n"+ 
+                            "Type Exit to terminate connection."); 
+                  
+                // receive the answer from client 
+                received = dis.readUTF(); 
+                
+                //from server 2
+                String received1 = dis1.readUTF(); 
+                System.out.println(received1); 
+                
+                //from server 3
+                String received2 = dis2.readUTF(); 
+                System.out.println(received2); 
+                
+                
+                
+                  
+                if(received.equals("Exit")) 
+                {  
+                    System.out.println("Client " + this.s + " sends exit..."); 
+                    System.out.println("Closing this connection."); 
+                    this.s.close(); 
+                    System.out.println("Connection closed"); 
+                    break; 
+                } 
+                  
+                // creating Date object 
+                Date date = new Date(); 
+                  
+                // write on output stream based on the 
+                // answer from the client 
+                switch (received) { 
+                  
+                    case "Date" : 
+                        toreturn = fordate.format(date); 
+                        dos.writeUTF(toreturn); 
+                        break; 
+                          
+                    case "Time" : 
+                        toreturn = fortime.format(date); 
+                        dos.writeUTF(toreturn); 
+                        break; 
+                          
+                    default: 
+                        dos.writeUTF("Invalid input"); 
+                        break; 
+                } 
+            } catch (IOException e) { 
+                e.printStackTrace(); 
+            } 
+        }
+            
+            }
+         catch (Exception e){ 
+                e.printStackTrace(); 
+            } 
+          
+        try
+        { 
+            // closing resources 
+            this.dis.close(); 
+            this.dos.close(); 
+              
+        }catch(IOException e){ 
+            e.printStackTrace(); 
+        } 
+    }
+}
 }
  
