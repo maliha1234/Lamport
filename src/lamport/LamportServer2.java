@@ -13,14 +13,14 @@ import java.util.logging.Logger;
 // Server class 
 public class LamportServer2 {
 
- //   public static Queue<String> q = new LinkedList<>();
-    public static List<QueueClass> qList2 = new ArrayList<>();
+    //   public static Queue<String> q = new LinkedList<>();
+    public static List<QueueClass2> qList = new ArrayList<>();
     public static int flag = 0;
 
     public static Map<String, ClientHandler> threads = new HashMap<String, ClientHandler>();
 
     public static void main(String[] args) throws IOException {
-        // server is listening on port 5056 
+        // server is listening on port 5058 
         ServerSocket ss = new ServerSocket(5058);
         if (flag == 0) {
             startQueueThread();
@@ -41,13 +41,12 @@ public class LamportServer2 {
                  */
                 String received = new DataInputStream(s.getInputStream()).readUTF();
 
-                if (received.contains("Client")) {
+                if (received.contains("Client") && !received.contains("socket")) {
 
                     System.out.println("A new client is connected : " + s);
-             //       q.add(received);
+                    //       q.add(received);
 
-             //       System.out.println(q);
-
+                    //       System.out.println(q);
                     // obtaining input and out streams 
                     DataInputStream dis = new DataInputStream(s.getInputStream());
                     DataOutputStream dos = new DataOutputStream(s.getOutputStream());
@@ -57,25 +56,19 @@ public class LamportServer2 {
                     /**
                      * ***
                      */
-                    // create a new thread object 
-                    Thread t = new ClientHandler(s, dis, dos);
-                    threads.put(received, (ClientHandler) t);
+                    Thread t = new ClientHandler2(s, dis, dos);
+                    QueueClass2 queueClass = new QueueClass2(System.currentTimeMillis(), 2, received, (ClientHandler2) t, null);
 
-                    //
-                    QueueClass queueClass = new QueueClass();
-                    queueClass.task = received;
-                    queueClass.serverId = 1;
-                    queueClass.timestamp = System.currentTimeMillis();
-                    queueClass.clientClassHandler = (ClientHandler) t;
-                    queueClass.serverHandler = null;
-                    qList2.add(queueClass);
-
+                    qList.add(queueClass);
+                    // queueClass.setServerSocket();
                     sortQueue();
 
                     //
                     // Invoking the start() method 
                     t.start();
                 } else if (received.contains("socket")) {
+                    System.out.println(received);
+                    
                     // obtaining input and out streams 
                     DataInputStream dis = new DataInputStream(s.getInputStream());
                     DataOutputStream dos = new DataOutputStream(s.getOutputStream());
@@ -86,16 +79,11 @@ public class LamportServer2 {
                      * ***
                      */
                     // create a new thread object 
-                    Thread serverThread = new ServerHandler(s, dis, dos);
+                    Thread serverThread = new ServerHandler2(s, dis, dos);
 
                     //
-                    QueueClass queueClass = new QueueClass();
-                    queueClass.task = received;
-                    queueClass.serverId = 1;
-                    queueClass.timestamp = System.currentTimeMillis();
-                    queueClass.serverHandler = (ServerHandler) serverThread;
-                    queueClass.clientClassHandler = null;
-                    qList2.add(queueClass);
+                    QueueClass2 queueClass = new QueueClass2(System.currentTimeMillis(), 1, received, null, (ServerHandler2) serverThread);
+                    qList.add(queueClass);
                     //
                     sortQueue();
 
@@ -116,25 +104,31 @@ public class LamportServer2 {
             @Override
             public void run() {
                 try {
-                    System.out.println("Hello World" + qList2);
-                    if (!qList2.isEmpty()) {
-                        QueueClass qClass = qList2.get(0);
-                        String task = qList2.get(0).task;
+                    System.out.println("Hello World" + qList);
+                    if (!qList.isEmpty()) {
+                        QueueClass2 qClass = qList.get(0);
+                        String task = qList.get(0).task;
 
-                        if (qClass.clientClassHandler != null) {
-                            qClass.clientClassHandler.dos1.writeUTF(task + "Server2");
-                            qClass.clientClassHandler.dos2.writeUTF(task + "Server3");
+                         if (qClass.clientClassHandler != null) {
+                            qClass.clientClassHandler.dos1.writeUTF("ack" + task + "From Server2");
+                            qClass.clientClassHandler.dos2.writeUTF("ack" + task + "from Server2");
 
-                            qClass.clientClassHandler.dos.writeUTF(task + "Client3");
+                            qClass.clientClassHandler.dos.writeUTF("ack" + task + "from server 2 Client3");
                         }
-                        
-                        for(QueueClass qq : qList2){
-                        System.out.println("Hello World" + qq.timestamp + "\n");
+                        if (qClass.serverHandler != null) {
+                            qClass.serverHandler.dos.writeUTF("ack" + task + "from Server2 to other server");
+                          //  qClass.serverHandler.dos2.writeUTF("ack" + task + "Server3");
+
+                           
+                        }
+
+                        for (QueueClass2 qq : qList) {
+                            System.out.println("Hello World" + qq.timestamp + "\n");
                         }
                     }
 
                 } catch (IOException ex) {
-                    Logger.getLogger(LamportServer2.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(LamportServer1.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
             }
@@ -144,17 +138,17 @@ public class LamportServer2 {
 
     public static void sortQueue() {
 
-        for (int j = 0; j < qList2.size(); j++) {
+        for (int j = 0; j < qList.size(); j++) {
 
-            for (int i = j + 1; i < qList2.size(); i++) {
+            for (int i = j + 1; i < qList.size(); i++) {
 
-                if (qList2.get(i).timestamp < qList2.get(j).timestamp) {
+                if (qList.get(i).timestamp < qList.get(j).timestamp) {
 
-                    QueueClass q = qList2.get(j);
+                    QueueClass2 q = qList.get(j);
 
-                    qList2.set(j, qList2.get(i));
+                    qList.set(j, qList.get(i));
 
-                    qList2.set(i, q);
+                    qList.set(i, q);
 
                 }
 
@@ -173,8 +167,6 @@ class ClientHandler2 extends Thread {
     final DataInputStream dis;
     final DataOutputStream dos;
     final Socket s;
-    String name;
-    String message;
 
     // these are for the servers
     DataInputStream dis1;
@@ -199,7 +191,6 @@ class ClientHandler2 extends Thread {
          * *
          */
         try {
-            setServerSocket();
 
             // getting localhost ip 
             /*
@@ -227,14 +218,19 @@ class ClientHandler2 extends Thread {
 
                     // receive the answer from client 
                     received = dis.readUTF();
+                    System.out.println(received);
 
                     //from server 2
-                    String received1 = dis1.readUTF();
-                    System.out.println(received1);
+                    if (dis1 != null) {
+                        String received1 = dis1.readUTF();
+                        System.out.println(received1);
+                    }
 
-                    //from server 3
-                    String received2 = dis2.readUTF();
-                    System.out.println(received2);
+                    if (dis1 != null) {
+                        //from server 3
+                        String received2 = dis2.readUTF();
+                        System.out.println(received2);
+                    }
 
                     if (received.equals("Exit")) {
                         System.out.println("Client " + this.s + " sends exit...");
@@ -284,21 +280,23 @@ class ClientHandler2 extends Thread {
         }
     }
 
-    public void setServerSocket() {
+    public void setServerSocket(String task) {
 
         try {
 
-            //server 1
+            //server 2
             // getting localhost ip 
             InetAddress ip = InetAddress.getByName("localhost");
-            // establish the connection with server port 5057 
+            // establish the connection with server port 5058 
             Socket s1 = new Socket(ip, 5057);
             // obtaining input and out streams
 
             dis1 = new DataInputStream(s1.getInputStream());
             dos1 = new DataOutputStream(s1.getOutputStream());
-            dos1.writeUTF("Server1");
+            dos1.writeUTF("socket" + "Server1" + task);
 
+            //
+            //
             //server 3
             // getting localhost ip 
             InetAddress ip2 = InetAddress.getByName("localhost");
@@ -308,7 +306,7 @@ class ClientHandler2 extends Thread {
 
             dis2 = new DataInputStream(s2.getInputStream());
             dos2 = new DataOutputStream(s2.getOutputStream());
-            dos2.writeUTF("Server3");
+            dos2.writeUTF("socket" + "Server3" + task);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -332,6 +330,11 @@ class ServerHandler2 extends Thread {
         this.s = s;
         this.dis = dis;
         this.dos = dos;
+        try {
+            dos.writeUTF("from Server 1 to server 2 step 1");
+        } catch (IOException ex) {
+            Logger.getLogger(ServerHandler2.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -339,7 +342,7 @@ class ServerHandler2 extends Thread {
         String received;
         String toreturn;
         try {
-            dos.writeUTF("from Server 1 to server 2");
+            dos.writeUTF("from Server 1 to server 2 Step 2");
             //dos.writeUTF("sending connection request to another server"); 
         } catch (IOException e) {
             e.printStackTrace();
@@ -347,6 +350,7 @@ class ServerHandler2 extends Thread {
 
         while (true) {
             try {
+                dos.writeUTF("from Server 1 to server 2 Step 3");
 
                 // Ask user what he wants 
                 //     dos.writeUTF("sending to server everytime inside run"); 
@@ -406,7 +410,19 @@ class QueueClass2 {
     long timestamp;
     int serverId;
     String task;
-    ClientHandler clientClassHandler;
-    ServerHandler serverHandler;
+    ClientHandler2 clientClassHandler;
+    ServerHandler2 serverHandler;
+
+    // Constructor 
+    public QueueClass2(long timeStamp, int serverId, String task, ClientHandler2 c, ServerHandler2 s) {
+        this.serverId = serverId;
+        this.timestamp = timeStamp;
+        this.task = task;
+        this.clientClassHandler = c;
+        this.serverHandler = s;
+        if (clientClassHandler != null) {
+            clientClassHandler.setServerSocket(task);
+        }
+    }
 
 }

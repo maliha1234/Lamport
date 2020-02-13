@@ -35,13 +35,15 @@ public class LamportServer1 {
             try {
                 // socket object to receive incoming client requests 
                 s = ss.accept();
+                
 
                 /**
                  * **
                  */
                 String received = new DataInputStream(s.getInputStream()).readUTF();
+                System.out.println("in main" + received);
 
-                if (received.contains("Client")) {
+                if (received.contains("Client") && !received.contains("socket")) {
 
                     System.out.println("A new client is connected : " + s);
              //       q.add(received);
@@ -53,21 +55,39 @@ public class LamportServer1 {
                     DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 
                     System.out.println("Assigning new thread for this client");
+                    
+                    //server 2
+            // getting localhost ip 
+            InetAddress ip = InetAddress.getByName("localhost");
+            // establish the connection with server port 5058 
+            Socket s1 = new Socket(ip, 5058);
+            // obtaining input and out streams
+
+            DataInputStream dis1 = new DataInputStream(s1.getInputStream());
+            DataOutputStream dos1 = new DataOutputStream(s1.getOutputStream());
+            //dos1.writeUTF("socket" + "Server2" + task);
+            
+            //
+            
+            //
+
+            //server 3
+            // getting localhost ip 
+            InetAddress ip2 = InetAddress.getByName("localhost");
+            // establish the connection with server port 5059
+            Socket s2 = new Socket(ip2, 5059);
+            // obtaining input and out streams
+
+            DataInputStream dis2 = new DataInputStream(s2.getInputStream());
+            DataOutputStream dos2 = new DataOutputStream(s2.getOutputStream());
+            //dos2.writeUTF("socket" + "Server3" + task);
 
                     /**
                      * ***
                      */
-                    QueueClass queueClass = new QueueClass();
-                    queueClass.task = received;
-                    queueClass.serverId = 1;
-                    queueClass.timestamp = System.currentTimeMillis();
-                    // create a new thread object 
-                    Thread t = new ClientHandler(s, dis, dos);
-                    threads.put(received, (ClientHandler) t);
-
-                    //
-                   
-                    queueClass.clientClassHandler = (ClientHandler) t;
+                    Thread t = new ClientHandler(s, dis, dos,  s1, dis1, dos1, s2, dis2 , dos2);
+                    QueueClass queueClass = new QueueClass(System.currentTimeMillis(), 1, received, (ClientHandler) t, null );
+                    
                     qList.add(queueClass);
                    // queueClass.setServerSocket();
                     sortQueue();
@@ -91,11 +111,7 @@ public class LamportServer1 {
                     Thread serverThread = new ServerHandler(s, dis, dos);
 
                     //
-                    QueueClass queueClass = new QueueClass();
-                    queueClass.task = received;
-                    queueClass.serverId = 1;
-                    queueClass.timestamp = System.currentTimeMillis();
-                    queueClass.serverHandler = (ServerHandler) serverThread;
+                    QueueClass queueClass = new QueueClass(System.currentTimeMillis(), 1, received,  null, (ServerHandler) serverThread );
                     qList.add(queueClass);
                     //
                     sortQueue();
@@ -123,10 +139,16 @@ public class LamportServer1 {
                         String task = qList.get(0).task;
 
                         if (qClass.clientClassHandler != null) {
-                            qClass.clientClassHandler.dos1.writeUTF("ack" + task + "Server2");
-                            qClass.clientClassHandler.dos2.writeUTF("ack" + task + "Server3");
+                            qClass.clientClassHandler.dos1.writeUTF("ack" + task + "From Server1");
+                            qClass.clientClassHandler.dos2.writeUTF("ack" + task + "from Server1");
 
-                            qClass.clientClassHandler.dos.writeUTF("ack" + task + "Client3");
+                            qClass.clientClassHandler.dos.writeUTF("ack" + task + "from server 1Client3");
+                        }
+                        if (qClass.serverHandler != null) {
+                            qClass.serverHandler.dos.writeUTF("ack" + task + "Server1 to other server");
+                          //  qClass.serverHandler.dos2.writeUTF("ack" + task + "Server3");
+
+                           
                         }
                         
                         for(QueueClass qq : qList){
@@ -174,33 +196,52 @@ class ClientHandler extends Thread {
     final DataInputStream dis;
     final DataOutputStream dos;
     final Socket s;
+    final Socket s1;
+    final Socket s2;
     
     // these are for the servers
-    DataInputStream dis1;
-    DataOutputStream dos1;
+   final DataInputStream dis1;
+   final DataOutputStream dos1;
 
-    DataInputStream dis2;
-    DataOutputStream dos2;
+   final DataInputStream dis2;
+   final DataOutputStream dos2;
 
     // Constructor 
-    public ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos) {
+    public ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos, Socket s1, DataInputStream dis1, DataOutputStream dos1,Socket s2, DataInputStream dis2, DataOutputStream dos2) {
         this.s = s;
         this.dis = dis;
         this.dos = dos;
+        this.s1 = s1;
+        this.dis1 = dis1;
+        this.dos1 = dos1;
+        this.s2 = s2;
+        this.dis2 = dis2;
+        this.dos2 = dos2;
+       
     }
 
     @Override
     public void run() {
         String received;
         String toreturn;
+        
+
 
         /**
          * *
          */
         try {
+                    String received1 = dis1.readUTF();
+                    System.out.println(received1);
+                    
+
+                    
+                    //from server 3
+                    String received2 = dis2.readUTF();
+                    System.out.println(received2);
             
-             
-              setServerSocket();
+            //  setServerSocket("this is");
+              
 
             // getting localhost ip 
             /*
@@ -225,21 +266,25 @@ class ClientHandler extends Thread {
                     // Ask user what he wants 
                     dos.writeUTF("What do you want?[Date | Time]..\n"
                             + "Type Exit to terminate connection.");
+                    
+                    dos1.writeUTF("socket What from server 1");
+                    dos2.writeUTF("socket What from server 1");
 
                     // receive the answer from client 
                     received = dis.readUTF();
+                    System.out.println(received);
 
                     //from server 2
-                    if(dis1!=null){
-                    String received1 = dis1.readUTF();
+                   
+                    received1 = dis1.readUTF();
                     System.out.println(received1);
-                    }
+                    
 
-                    if(dis1!=null){
+                    
                     //from server 3
-                    String received2 = dis2.readUTF();
+                    received2 = dis2.readUTF();
                     System.out.println(received2);
-                    }
+                    
 
                     if (received.equals("Exit")) {
                         System.out.println("Client " + this.s + " sends exit...");
@@ -289,7 +334,7 @@ class ClientHandler extends Thread {
         }
     }
 
-    public void setServerSocket() {
+    /*public void setServerSocket(String task) {
 
         try {
 
@@ -302,7 +347,7 @@ class ClientHandler extends Thread {
 
             dis1 = new DataInputStream(s1.getInputStream());
             dos1 = new DataOutputStream(s1.getOutputStream());
-            dos1.writeUTF("socket" + "Server2" + "task");
+            dos1.writeUTF("socket" + "Server2" + task);
             
             //
             
@@ -317,13 +362,13 @@ class ClientHandler extends Thread {
 
             dis2 = new DataInputStream(s2.getInputStream());
             dos2 = new DataOutputStream(s2.getOutputStream());
-            dos2.writeUTF("socket" + "Server3" + "task");
+            dos2.writeUTF("socket" + "Server3" + task);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-    }
+    }*/
 
 }
 
@@ -418,7 +463,17 @@ class QueueClass {
     ClientHandler clientClassHandler;
     ServerHandler serverHandler;
     
-    
+    // Constructor 
+    public QueueClass(long timeStamp, int serverId, String task,ClientHandler c, ServerHandler s) {
+        this.serverId = serverId;
+        this.timestamp = timeStamp;
+        this.task = task;
+        this.clientClassHandler = c;
+        this.serverHandler = s;
+        if(clientClassHandler != null){
+      //      clientClassHandler.setServerSocket(task);
+        }
+    }
     
 
 }
