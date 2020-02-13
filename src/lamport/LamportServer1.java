@@ -58,7 +58,7 @@ public class LamportServer1 {
                      * ***
                      */
                     // create a new thread object 
-                    Thread t = new ClientHandler(s, dis, dos);
+                    ClientHandler t = new ClientHandler(s, dis, dos);
                     threads.put(received, (ClientHandler) t);
 
                     //
@@ -70,6 +70,8 @@ public class LamportServer1 {
                     qList.add(queueClass);
 
                     sortQueue();
+                    
+                   t.qDetail = queueClass;
 
                     //
                     // Invoking the start() method 
@@ -173,6 +175,8 @@ class ClientHandler extends Thread {
     final Socket s;
     String name;
     String message;
+    
+    public QueueClass qDetail;
 
     // these are for the servers
     DataInputStream dis1;
@@ -198,6 +202,8 @@ class ClientHandler extends Thread {
          */
         try {
             setServerSocket();
+              System.out.println(qDetail.task);
+              
 
             // getting localhost ip 
             /*
@@ -295,7 +301,11 @@ class ClientHandler extends Thread {
 
             dis1 = new DataInputStream(s1.getInputStream());
             dos1 = new DataOutputStream(s1.getOutputStream());
-            dos1.writeUTF("Server2");
+            dos1.writeUTF("Server2" + qDetail.task);
+            
+            //
+            
+            //
 
             //server 3
             // getting localhost ip 
@@ -306,7 +316,7 @@ class ClientHandler extends Thread {
 
             dis2 = new DataInputStream(s2.getInputStream());
             dos2 = new DataOutputStream(s2.getOutputStream());
-            dos2.writeUTF("Server3");
+            dos2.writeUTF("Server3" + qDetail.task);
 
         } catch (Exception e) {
             e.printStackTrace();
