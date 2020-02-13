@@ -23,7 +23,7 @@ public class LamportServer1 {
         // server is listening on port 5056 
         ServerSocket ss = new ServerSocket(5057);
         if (flag == 0) {
-            startQueueThread();
+          //  startQueueThread();
             flag = 1;
         }
 
@@ -85,18 +85,18 @@ public class LamportServer1 {
                     /**
                      * ***
                      */
-                    Thread t = new ClientHandler(s, dis, dos,  s1, dis1, dos1, s2, dis2 , dos2);
+                    Thread t = new ClientHandler(s, dis, dos);
+                    t.start();
                     QueueClass queueClass = new QueueClass(System.currentTimeMillis(), 1, received, (ClientHandler) t, null );
                     
                     qList.add(queueClass);
                    // queueClass.setServerSocket();
                     sortQueue();
                     
-         
 
                     //
                     // Invoking the start() method 
-                    t.start();
+                    
                 } else if (received.contains("socket")) {
                     // obtaining input and out streams 
                     DataInputStream dis = new DataInputStream(s.getInputStream());
@@ -109,14 +109,14 @@ public class LamportServer1 {
                      */
                     // create a new thread object 
                     Thread serverThread = new ServerHandler(s, dis, dos);
-
+                     serverThread.start();
                     //
                     QueueClass queueClass = new QueueClass(System.currentTimeMillis(), 1, received,  null, (ServerHandler) serverThread );
                     qList.add(queueClass);
                     //
                     sortQueue();
 
-                    serverThread.start();
+                   
                 }
 
             } catch (Exception e) {
@@ -132,6 +132,8 @@ public class LamportServer1 {
         t.schedule(new TimerTask() {
             @Override
             public void run() {
+                
+                
                 try {
                     System.out.println("Hello World" + qList);
                     if (!qList.isEmpty()) {
@@ -196,33 +198,30 @@ class ClientHandler extends Thread {
     final DataInputStream dis;
     final DataOutputStream dos;
     final Socket s;
-    final Socket s1;
-    final Socket s2;
+    Socket s1;
+    Socket s2;
     
     // these are for the servers
-   final DataInputStream dis1;
-   final DataOutputStream dos1;
+   DataInputStream dis1;
+  DataOutputStream dos1;
 
-   final DataInputStream dis2;
-   final DataOutputStream dos2;
+   DataInputStream dis2;
+   DataOutputStream dos2;
 
     // Constructor 
-    public ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos, Socket s1, DataInputStream dis1, DataOutputStream dos1,Socket s2, DataInputStream dis2, DataOutputStream dos2) {
+    public ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos) {
         this.s = s;
         this.dis = dis;
         this.dos = dos;
-        this.s1 = s1;
-        this.dis1 = dis1;
-        this.dos1 = dos1;
-        this.s2 = s2;
-        this.dis2 = dis2;
-        this.dos2 = dos2;
+        setServerSocket("task");
        
     }
 
     @Override
     public void run() {
         String received;
+        String received1;
+        String received2;
         String toreturn;
         
 
@@ -231,35 +230,52 @@ class ClientHandler extends Thread {
          * *
          */
         try {
-                    String received1 = dis1.readUTF();
-                    System.out.println(received1);
+                   if (dis1 != null) {
+                    received1 = dis1.readUTF();
+                    System.out.println(received1);}
                     
 
-                    
+                    if (dis2 != null) {
                     //from server 3
-                    String received2 = dis2.readUTF();
-                    System.out.println(received2);
-            
-            //  setServerSocket("this is");
-              
+                    received2 = dis2.readUTF();
+                    System.out.println(received2);}
+                    
+                    if (dis != null) {
+                    received = dis.readUTF();
+                    System.out.println(received);}
+                    
+                    } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+            
+        try {
+            //  setServerSocket("this is");
+            
+            
             // getting localhost ip 
             /*
-                InetAddress ip = InetAddress.getByName("localhost"); 
-                // establish the connection with server port 5056 
-                Socket s1 = new Socket(ip, 5058); 
-        // obtaining input and out streams
-                
-                DataInputStream dis1 = new DataInputStream(s1.getInputStream()); 
-                DataOutputStream dos1 = new DataOutputStream(s1.getOutputStream()); 
-                dos1.writeUTF("Server"); */
-            // create a new thread object 
-            //Thread sThread = new ServerHandler(s1, dis1, dos1); 
-            // Invoking the start() method 
+            InetAddress ip = InetAddress.getByName("localhost");
+            // establish the connection with server port 5056
+            Socket s1 = new Socket(ip, 5058);
+            // obtaining input and out streams
+            
+            DataInputStream dis1 = new DataInputStream(s1.getInputStream());
+            DataOutputStream dos1 = new DataOutputStream(s1.getOutputStream());
+            dos1.writeUTF("Server"); */
+            // create a new thread object
+            //Thread sThread = new ServerHandler(s1, dis1, dos1);
+            // Invoking the start() method
             //  sThread.start(); 
             /**
              * **
              */
+            
+            dos.writeUTF("What do you want?[Date | Time]..\n"
+                    + "Type Exit to terminate connection.");
+        } catch (IOException ex) {
+            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
             while (true) {
                 try {
 
@@ -267,23 +283,27 @@ class ClientHandler extends Thread {
                     dos.writeUTF("What do you want?[Date | Time]..\n"
                             + "Type Exit to terminate connection.");
                     
-                    dos1.writeUTF("socket What from server 1");
-                    dos2.writeUTF("socket What from server 1");
+                //    dos1.writeUTF("socket What from server 1");
+               //     dos2.writeUTF("socket What from server 1");
 
                     // receive the answer from client 
+                   
                     received = dis.readUTF();
-                    System.out.println(received);
+                    System.out.println(received); 
 
                     //from server 2
-                   
+                   if (dis1 != null) {
                     received1 = dis1.readUTF();
                     System.out.println(received1);
                     
-
+                   
+                   }
                     
+
+                    if (dis2 != null) {
                     //from server 3
                     received2 = dis2.readUTF();
-                    System.out.println(received2);
+                    System.out.println(received2);}
                     
 
                     if (received.equals("Exit")) {
@@ -320,10 +340,7 @@ class ClientHandler extends Thread {
                 }
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        
         try {
             // closing resources 
             this.dis.close();
@@ -334,7 +351,7 @@ class ClientHandler extends Thread {
         }
     }
 
-    /*public void setServerSocket(String task) {
+    public void setServerSocket(String task) {
 
         try {
 
@@ -368,7 +385,16 @@ class ClientHandler extends Thread {
             e.printStackTrace();
         }
 
-    }*/
+    }
+    
+    public void setSocketRequest (String task){
+        try {
+            dos1.writeUTF("socket," + "Server2," + task);
+            dos1.writeUTF("socket," + "Server2," + task);
+        } catch (IOException ex) {
+            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
 }
 
@@ -471,7 +497,7 @@ class QueueClass {
         this.clientClassHandler = c;
         this.serverHandler = s;
         if(clientClassHandler != null){
-      //      clientClassHandler.setServerSocket(task);
+          
         }
     }
     

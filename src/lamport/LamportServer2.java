@@ -23,7 +23,7 @@ public class LamportServer2 {
         // server is listening on port 5058 
         ServerSocket ss = new ServerSocket(5058);
         if (flag == 0) {
-            startQueueThread();
+     //       startQueueThread();
             flag = 1;
         }
 
@@ -57,6 +57,7 @@ public class LamportServer2 {
                      * ***
                      */
                     Thread t = new ClientHandler2(s, dis, dos);
+                    t.start();
                     QueueClass2 queueClass = new QueueClass2(System.currentTimeMillis(), 2, received, (ClientHandler2) t, null);
 
                     qList.add(queueClass);
@@ -65,7 +66,7 @@ public class LamportServer2 {
 
                     //
                     // Invoking the start() method 
-                    t.start();
+                   
                 } else if (received.contains("socket")) {
                     System.out.println(received);
                     
@@ -80,14 +81,14 @@ public class LamportServer2 {
                      */
                     // create a new thread object 
                     Thread serverThread = new ServerHandler2(s, dis, dos);
-
+                    serverThread.start();
                     //
                     QueueClass2 queueClass = new QueueClass2(System.currentTimeMillis(), 1, received, null, (ServerHandler2) serverThread);
                     qList.add(queueClass);
                     //
                     sortQueue();
 
-                    serverThread.start();
+                   
                 }
 
             } catch (Exception e) {
@@ -108,7 +109,8 @@ public class LamportServer2 {
                     if (!qList.isEmpty()) {
                         QueueClass2 qClass = qList.get(0);
                         String task = qList.get(0).task;
-
+                        
+                           System.out.println("Hello World" + task + "\n");    
                          if (qClass.clientClassHandler != null) {
                             qClass.clientClassHandler.dos1.writeUTF("ack" + task + "From Server2");
                             qClass.clientClassHandler.dos2.writeUTF("ack" + task + "from Server2");
@@ -116,7 +118,8 @@ public class LamportServer2 {
                             qClass.clientClassHandler.dos.writeUTF("ack" + task + "from server 2 Client3");
                         }
                         if (qClass.serverHandler != null) {
-                            qClass.serverHandler.dos.writeUTF("ack" + task + "from Server2 to other server");
+                            System.out.println("Hello World from server handler" + task + "\n");
+                            qClass.serverHandler.dos3.writeUTF("ack" + task + "from Server2 to other server");
                           //  qClass.serverHandler.dos2.writeUTF("ack" + task + "Server3");
 
                            
@@ -213,8 +216,7 @@ class ClientHandler2 extends Thread {
                 try {
 
                     // Ask user what he wants 
-                    dos.writeUTF("What do you want?[Date | Time]..\n"
-                            + "Type Exit to terminate connection.");
+                    dos.writeUTF("What do you want?");
 
                     // receive the answer from client 
                     received = dis.readUTF();
@@ -321,17 +323,27 @@ class ServerHandler2 extends Thread {
 
     DateFormat fordate = new SimpleDateFormat("yyyy/MM/dd");
     DateFormat fortime = new SimpleDateFormat("hh:mm:ss");
-    final DataInputStream dis;
-    final DataOutputStream dos;
+    final DataInputStream dis3;
+    final DataOutputStream dos3;
     final Socket s;
 
     // Constructor 
     public ServerHandler2(Socket s, DataInputStream dis, DataOutputStream dos) {
         this.s = s;
-        this.dis = dis;
-        this.dos = dos;
+        this.dis3 = dis;
+        this.dos3 = dos;
         try {
-            dos.writeUTF("from Server 1 to server 2 step 1");
+            this.dos3.writeUTF("from Server 1 to server 2 step 1");
+        } catch (IOException ex) {
+            Logger.getLogger(ServerHandler2.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        sendMessage();
+    }
+    
+    public void sendMessage(){
+    
+        try {
+            this.dos3.writeUTF("Hi from server 2");
         } catch (IOException ex) {
             Logger.getLogger(ServerHandler2.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -342,7 +354,7 @@ class ServerHandler2 extends Thread {
         String received;
         String toreturn;
         try {
-            dos.writeUTF("from Server 1 to server 2 Step 2");
+            this.dos3.writeUTF("from Server 1 to server 2 Step 2");
             //dos.writeUTF("sending connection request to another server"); 
         } catch (IOException e) {
             e.printStackTrace();
@@ -350,12 +362,12 @@ class ServerHandler2 extends Thread {
 
         while (true) {
             try {
-                dos.writeUTF("from Server 1 to server 2 Step 3");
+                this.dos3.writeUTF("from Server 1 to server 2 Step 3");
 
                 // Ask user what he wants 
                 //     dos.writeUTF("sending to server everytime inside run"); 
                 // receive the answer from client 
-                received = dis.readUTF();
+                received = dis3.readUTF();
                 System.out.println(received);
                 //dos.writeUTF("sending from 1 to server 2"); 
 
@@ -376,16 +388,16 @@ class ServerHandler2 extends Thread {
 
                     case "Date":
                         toreturn = fordate.format(date);
-                        dos.writeUTF(toreturn);
+                        dos3.writeUTF(toreturn);
                         break;
 
                     case "Time":
                         toreturn = fortime.format(date);
-                        dos.writeUTF(toreturn);
+                        dos3.writeUTF(toreturn);
                         break;
 
                     default:
-                        dos.writeUTF("Invalid input");
+                        dos3.writeUTF("Invalid input");
                         break;
                 }
             } catch (IOException e) {
@@ -395,8 +407,8 @@ class ServerHandler2 extends Thread {
 
         try {
             // closing resources 
-            this.dis.close();
-            this.dos.close();
+            this.dis3.close();
+            this.dos3.close();
 
         } catch (IOException e) {
             e.printStackTrace();
