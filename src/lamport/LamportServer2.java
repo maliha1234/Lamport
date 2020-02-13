@@ -67,6 +67,7 @@ public class LamportServer2 {
                     queueClass.serverId = 1;
                     queueClass.timestamp = System.currentTimeMillis();
                     queueClass.clientClassHandler = (ClientHandler) t;
+                    queueClass.serverHandler = null;
                     qList2.add(queueClass);
 
                     sortQueue();
@@ -74,7 +75,7 @@ public class LamportServer2 {
                     //
                     // Invoking the start() method 
                     t.start();
-                } else if (received.contains("Server")) {
+                } else if (received.contains("socket")) {
                     // obtaining input and out streams 
                     DataInputStream dis = new DataInputStream(s.getInputStream());
                     DataOutputStream dos = new DataOutputStream(s.getOutputStream());
@@ -93,6 +94,7 @@ public class LamportServer2 {
                     queueClass.serverId = 1;
                     queueClass.timestamp = System.currentTimeMillis();
                     queueClass.serverHandler = (ServerHandler) serverThread;
+                    queueClass.clientClassHandler = null;
                     qList2.add(queueClass);
                     //
                     sortQueue();

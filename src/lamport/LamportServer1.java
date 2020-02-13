@@ -57,26 +57,27 @@ public class LamportServer1 {
                     /**
                      * ***
                      */
-                    // create a new thread object 
-                    ClientHandler t = new ClientHandler(s, dis, dos);
-                    threads.put(received, (ClientHandler) t);
-
-                    //
                     QueueClass queueClass = new QueueClass();
                     queueClass.task = received;
                     queueClass.serverId = 1;
                     queueClass.timestamp = System.currentTimeMillis();
+                    // create a new thread object 
+                    Thread t = new ClientHandler(s, dis, dos);
+                    threads.put(received, (ClientHandler) t);
+
+                    //
+                   
                     queueClass.clientClassHandler = (ClientHandler) t;
                     qList.add(queueClass);
-
+                   // queueClass.setServerSocket();
                     sortQueue();
                     
-                   t.qDetail = queueClass;
+         
 
                     //
                     // Invoking the start() method 
                     t.start();
-                } else if (received.contains("Server")) {
+                } else if (received.contains("socket")) {
                     // obtaining input and out streams 
                     DataInputStream dis = new DataInputStream(s.getInputStream());
                     DataOutputStream dos = new DataOutputStream(s.getOutputStream());
@@ -122,10 +123,10 @@ public class LamportServer1 {
                         String task = qList.get(0).task;
 
                         if (qClass.clientClassHandler != null) {
-                            qClass.clientClassHandler.dos1.writeUTF(task + "Server2");
-                            qClass.clientClassHandler.dos2.writeUTF(task + "Server3");
+                            qClass.clientClassHandler.dos1.writeUTF("ack" + task + "Server2");
+                            qClass.clientClassHandler.dos2.writeUTF("ack" + task + "Server3");
 
-                            qClass.clientClassHandler.dos.writeUTF(task + "Client3");
+                            qClass.clientClassHandler.dos.writeUTF("ack" + task + "Client3");
                         }
                         
                         for(QueueClass qq : qList){
@@ -173,11 +174,7 @@ class ClientHandler extends Thread {
     final DataInputStream dis;
     final DataOutputStream dos;
     final Socket s;
-    String name;
-    String message;
     
-    public QueueClass qDetail;
-
     // these are for the servers
     DataInputStream dis1;
     DataOutputStream dos1;
@@ -201,9 +198,9 @@ class ClientHandler extends Thread {
          * *
          */
         try {
-            setServerSocket();
-              System.out.println(qDetail.task);
-              
+            
+             
+              setServerSocket();
 
             // getting localhost ip 
             /*
@@ -233,12 +230,16 @@ class ClientHandler extends Thread {
                     received = dis.readUTF();
 
                     //from server 2
+                    if(dis1!=null){
                     String received1 = dis1.readUTF();
                     System.out.println(received1);
+                    }
 
+                    if(dis1!=null){
                     //from server 3
                     String received2 = dis2.readUTF();
                     System.out.println(received2);
+                    }
 
                     if (received.equals("Exit")) {
                         System.out.println("Client " + this.s + " sends exit...");
@@ -301,7 +302,7 @@ class ClientHandler extends Thread {
 
             dis1 = new DataInputStream(s1.getInputStream());
             dos1 = new DataOutputStream(s1.getOutputStream());
-            dos1.writeUTF("Server2" + qDetail.task);
+            dos1.writeUTF("socket" + "Server2" + "task");
             
             //
             
@@ -316,7 +317,7 @@ class ClientHandler extends Thread {
 
             dis2 = new DataInputStream(s2.getInputStream());
             dos2 = new DataOutputStream(s2.getOutputStream());
-            dos2.writeUTF("Server3" + qDetail.task);
+            dos2.writeUTF("socket" + "Server3" + "task");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -416,5 +417,8 @@ class QueueClass {
     String task;
     ClientHandler clientClassHandler;
     ServerHandler serverHandler;
+    
+    
+    
 
 }
