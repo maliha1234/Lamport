@@ -48,10 +48,13 @@ public class NewLamportServer1 {
                 DataOutputStream dos1 = new DataOutputStream(s1.getOutputStream());
 
                 // create a new thread object 
-                Thread t = new ClientHandler4(s, dis, dos, s1, dis1, dos1);
+                Thread t = new ClientHandler4(s, dis, dos);
+                
+                Thread sT = new ServerHandler4(s1, dis1, dos1);
 
                 // Invoking the start() method 
                 t.start();
+                sT.start();
 
             } catch (Exception e) {
                 s.close();
@@ -70,22 +73,15 @@ class ClientHandler4 extends Thread {
     final DataOutputStream dos;
     final Socket s;
 
-    final DataInputStream dis1;
-    final DataOutputStream dos1;
-    final Socket s1;
-
     // Constructor 
-    public ClientHandler4(Socket s, DataInputStream dis, DataOutputStream dos, Socket s1, DataInputStream dis1, DataOutputStream dos1) {
+    public ClientHandler4(Socket s, DataInputStream dis, DataOutputStream dos) {
         this.s = s;
         this.dis = dis;
         this.dos = dos;
-        this.s1 = s1;
-        this.dis1 = dis1;
-        this.dos1 = dos1;
 
         try {
             // Ask user what he wants 
-            dos.writeUTF("What do you want?");
+            dos.writeUTF("connectedwithclient");
 
         } catch (IOException ex) {
             Logger.getLogger(ClientHandler4.class.getName()).log(Level.SEVERE, null, ex);
@@ -103,10 +99,8 @@ class ClientHandler4 extends Thread {
 
                 // receive the answer from client 
                 received = dis.readUTF();
-                received1 = dis1.readUTF();
-                
+
                 System.out.println(received);
-                System.out.println(received1);
 
                 if (received.equals("Exit")) {
                     System.out.println("Client " + this.s + " sends exit...");
@@ -115,54 +109,24 @@ class ClientHandler4 extends Thread {
                     System.out.println("Connection closed");
                     break;
                 }
-                // creating Date object 
-                Date date = new Date();
 
                 // write on output stream based on the 
                 // answer from the client 
                 switch (received) {
 
-                    case "Date":
+                    case "ackReceived":
 
-                        dos.writeUTF("hello");
+                        dos.writeUTF("thanks");
                         break;
+                    case "HYk":
 
-                    case "Time":
-
-                        dos.writeUTF("hellhhho");
+                        dos.writeUTF("thanks");
                         break;
-
-                    case "Nothing":
-                        toreturn = fortime.format(date);
-                        dos.writeUTF(toreturn);
-                        break;
-
                     default:
                         dos.writeUTF("Invalid input");
                         break;
                 }
 
-                switch (received1) {
-
-                    case "Step1":
-                        toreturn = fordate.format(date);
-                        dos.writeUTF("toreturn");
-                        break;
-
-                    case "Step2":
-                        toreturn = fortime.format(date);
-                        dos.writeUTF("toreturn");
-                        break;
-
-                    case "ack":
-                        toreturn = fortime.format(date);
-                        dos.writeUTF("toreturn");
-                        break;
-
-                    default:
-                        dos.writeUTF("Invalid input");
-                        break;
-                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -171,15 +135,81 @@ class ClientHandler4 extends Thread {
         try {
             // closing resources 
             this.dis.close();
-            this.dis1.close();
+
             this.dos.close();
-            this.dos1.close();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    /* 
+}
+
+    // ClientHandler class 
+    class ServerHandler4 extends Thread {
+
+        DateFormat fordate = new SimpleDateFormat("yyyy/MM/dd");
+        DateFormat fortime = new SimpleDateFormat("hh:mm:ss");
+        final DataInputStream dis;
+        final DataOutputStream dos;
+        final Socket s;
+
+        // Constructor 
+        public ServerHandler4(Socket s, DataInputStream dis, DataOutputStream dos) {
+            this.s = s;
+            this.dis = dis;
+            this.dos = dos;
+
+           /* try {
+                // Ask user what he wants 
+                 dos.writeUTF("connectedwithserver");
+
+            } catch (IOException ex) {
+                Logger.getLogger(ClientHandler4.class.getName()).log(Level.SEVERE, null, ex);
+            }*/
+        }
+
+        @Override
+        public void run() {
+            String received;
+            String received1;
+            String toreturn;
+
+            while (true) {
+                try {
+
+                    received1 = dis.readUTF();
+                    System.out.println(received1);
+
+                    switch (received1) {
+
+                        case "connected":
+                            dos.writeUTF("ok");
+                            break;
+
+                        case "ackreceived":
+                            dos.writeUTF("okyoureceivedack");
+                            break;
+
+                        case "ack":
+
+                            dos.writeUTF("toreturn");
+                            break;
+
+                        default:
+                            dos.writeUTF("Invalid input");
+                            break;
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+           
+        }
+    }
+    
+        /* 
     public void setServerSocket(String task) {
 
         try {
@@ -215,4 +245,4 @@ class ClientHandler4 extends Thread {
         }
 
     }*/
-}
+    

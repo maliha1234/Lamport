@@ -72,8 +72,7 @@ class ServerHandler5 extends Thread
         this.dos = dos; 
         
            try {
-            dos.writeUTF("hello from servr 2");
-            dos.writeUTF("from server 2 hellhhho");
+            dos.writeUTF("connected");
             
         } catch (IOException ex) {
             Logger.getLogger(ClientHandler4.class.getName()).log(Level.SEVERE, null, ex);
@@ -94,7 +93,8 @@ class ServerHandler5 extends Thread
               //  dos.writeUTF("server 2"); 
                   
                 // receive the answer from client 
-                received = dis.readUTF(); 
+                received = dis.readUTF();
+                System.out.println(received); 
                   
                 if(received.equals("Exit")) 
                 {  
@@ -112,18 +112,22 @@ class ServerHandler5 extends Thread
                 // answer from the client 
                 switch (received) { 
                   
-                    case "Date" : 
-                        toreturn = fordate.format(date); 
-                        dos.writeUTF(toreturn); 
+                    case "ok" : 
+                         
+                        dos.writeUTF("okfromserver2"); 
+                        break; 
+                    case "ack" : 
+                         
+                        dos.writeUTF("okfromserver2"); 
                         break; 
                           
-                    case "Time" : 
+                    case "okyoureceivedack" : 
                         toreturn = fortime.format(date); 
                         dos.writeUTF(toreturn); 
                         break; 
                           
                     default: 
-                        dos.writeUTF("Invalid input"); 
+                        //dos.writeUTF("Invalid input"); 
                         break; 
                 } 
             } catch (IOException e) { 

@@ -36,17 +36,9 @@ public class NewLamportClient1 {
 
                 switch (received) {
 
-                    case "hello":
+                    case "connectedwithclient":
 
-                        dos.writeUTF("Time");
-                        break;
-
-                    case "hellhhho":
-                        dos.writeUTF("toreturn2");
-                        break;
-
-                    case "What do you want?":
-                        dos.writeUTF("Date");
+                        dos.writeUTF("HYk");
                         break;
 
                     default:
