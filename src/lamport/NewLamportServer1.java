@@ -36,8 +36,8 @@ public class NewLamportServer1 {
                 s = ss.accept();
 
                 System.out.println("A new client is connected : " + s);
-               // String received = new DataInputStream(s.getInputStream()).readUTF();
-               // System.out.println("in main" + received);
+                String received = new DataInputStream(s.getInputStream()).readUTF();
+                System.out.println("in main" + received);
 
                 // obtaining input and out streams 
                 DataInputStream dis = new DataInputStream(s.getInputStream());
