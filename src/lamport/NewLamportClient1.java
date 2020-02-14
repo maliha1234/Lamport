@@ -25,7 +25,7 @@ public class NewLamportClient1 {
             // obtaining input and out streams 
             DataInputStream dis = new DataInputStream(s.getInputStream());
             DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-            dos.writeUTF("writefileclient");
+            dos.writeUTF("write,file1,client");
 
             // the following loop performs the exchange of 
             // information between client and client handler 

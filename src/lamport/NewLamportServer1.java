@@ -39,42 +39,44 @@ public class NewLamportServer1 {
                 String received = new DataInputStream(s.getInputStream()).readUTF();
                 System.out.println("in main" + received);
 
-                // obtaining input and out streams 
-                DataInputStream dis = new DataInputStream(s.getInputStream());
-                DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+                if (received.contains("client") && !received.contains("socket")) {
+                    // obtaining input and out streams 
+                    DataInputStream dis = new DataInputStream(s.getInputStream());
+                    DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 
-                System.out.println("Assigning new thread for this client");
+                    System.out.println("Assigning new thread for this client");
 
-                //server 2
-                // getting localhost ip 
-                InetAddress ip = InetAddress.getByName("localhost");
-                // establish the connection with server port 5058 
-                Socket s1 = new Socket(ip, 5051);
-                // obtaining input and out streams
+                    //server 2
+                    // getting localhost ip 
+                    InetAddress ip = InetAddress.getByName("localhost");
+                    // establish the connection with server port 5058 
+                    Socket s1 = new Socket(ip, 5051);
+                    // obtaining input and out streams
 
-                // obtaining input and out streams 
-                DataInputStream dis1 = new DataInputStream(s1.getInputStream());
-                DataOutputStream dos1 = new DataOutputStream(s1.getOutputStream());
+                    // obtaining input and out streams 
+                    DataInputStream dis1 = new DataInputStream(s1.getInputStream());
+                    DataOutputStream dos1 = new DataOutputStream(s1.getOutputStream());
 
-                Socket s2 = new Socket(ip, 5052);
-                // obtaining input and out streams
+                    Socket s2 = new Socket(ip, 5052);
+                    // obtaining input and out streams
 
-                // obtaining input and out streams 
-                DataInputStream dis2 = new DataInputStream(s2.getInputStream());
-                DataOutputStream dos2 = new DataOutputStream(s2.getOutputStream());
+                    // obtaining input and out streams 
+                    DataInputStream dis2 = new DataInputStream(s2.getInputStream());
+                    DataOutputStream dos2 = new DataOutputStream(s2.getOutputStream());
 
-                // create a new thread object 
-                Thread t = new ClientHandler4(s, dis, dos);
+                    // create a new thread object 
+                    Thread t = new ClientHandler4(s, dis, dos);
 
-                Thread sT = new ServerSocketHandler4(s1, dis1, dos1, s2, dis2, dos2);
+                    Thread sT = new ServerSocketHandler4(s1, dis1, dos1, s2, dis2, dos2);
 
-                // Invoking the start() method 
-                t.start();
-                sT.start();
+                    // Invoking the start() method 
+                    t.start();
+                    sT.start();
 
-                QueueClass4 queueClass = new QueueClass4(System.currentTimeMillis(), 1, "received", (ClientHandler4) t, (ServerSocketHandler4) sT);
+                    QueueClass4 queueClass = new QueueClass4(System.currentTimeMillis(), 1, received, (ClientHandler4) t, (ServerSocketHandler4) sT);
 
-                qList.add(queueClass);
+                    qList.add(queueClass);
+                }
 
             } catch (Exception e) {
                 s.close();
