@@ -296,7 +296,7 @@ class ServerSocketHandler4 extends Thread {
                 switch (received1) {
 
                     case "connected":
-                        ackFromOthers += 1;
+                      //  ackFromOthers += 1;
                         dos1.writeUTF("ok");
                         break;
 
@@ -318,7 +318,7 @@ class ServerSocketHandler4 extends Thread {
                         break;
 
                     case "Yesackto2okfromserver2":
-
+                        ackFromOthers += 1;
                         dos1.writeUTF("thanksackto2okfromserver2");
                         break;
 
@@ -330,7 +330,7 @@ class ServerSocketHandler4 extends Thread {
                 switch (received2) {
 
                     case "connected":
-                        ackFromOthers += 1;
+
                         dos2.writeUTF("ok");
                         break;
 
@@ -348,7 +348,7 @@ class ServerSocketHandler4 extends Thread {
                         dos2.writeUTF("thanksackto3okfromserver3");
                         break;
                     case "Yesackto2okfromserver3":
-
+                        ackFromOthers += 1;
                         dos1.writeUTF("thanksackto2okfromserver3");
                         break;
 
