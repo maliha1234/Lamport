@@ -17,6 +17,7 @@ public class NewLamportServer1 {
 
     public static List<QueueClass4> qList = new ArrayList<>();
     public static int flag = 0;
+    public static Map<String, QueueClass4> threads = new HashMap<String, QueueClass4>();
 
     public static void main(String[] args) throws IOException {
         // server is listening on port 5056 
@@ -69,6 +70,7 @@ public class NewLamportServer1 {
 
                     Thread sT = new ServerSocketHandler4(s1, dis1, dos1, s2, dis2, dos2);
 
+                    // String id = 
                     // Invoking the start() method 
                     t.start();
                     sT.start();
@@ -76,6 +78,8 @@ public class NewLamportServer1 {
                     QueueClass4 queueClass = new QueueClass4(System.currentTimeMillis(), 1, received, (ClientHandler4) t, (ServerSocketHandler4) sT);
 
                     qList.add(queueClass);
+
+                    sortQueue();
                 }
 
             } catch (Exception e) {
@@ -83,6 +87,28 @@ public class NewLamportServer1 {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static void sortQueue() {
+
+        for (int j = 0; j < qList.size(); j++) {
+
+            for (int i = j + 1; i < qList.size(); i++) {
+
+                if (qList.get(i).timestamp < qList.get(j).timestamp) {
+
+                    QueueClass4 q = qList.get(j);
+
+                    qList.set(j, qList.get(i));
+
+                    qList.set(i, q);
+
+                }
+
+            }
+
+        }
+
     }
 
     public static void startQueueThread() throws IOException {
@@ -97,7 +123,7 @@ public class NewLamportServer1 {
                     if (!qList.isEmpty()) {
                         QueueClass4 qClass = qList.get(0);
                         String task = qList.get(0).task;
-
+                        System.out.println("Hello World acks" + qClass.serverHandler.ackFromOthers + "\n");
                         if (qClass.clientClassHandler != null) {
 
                             qClass.clientClassHandler.dos.writeUTF("acktoclient");
@@ -217,6 +243,8 @@ class ServerSocketHandler4 extends Thread {
     final DataOutputStream dos2;
     final Socket s2;
 
+    public int ackFromOthers = 0;
+
     // Constructor 
     public ServerSocketHandler4(Socket s1, DataInputStream dis1, DataOutputStream dos1, Socket s2, DataInputStream dis2, DataOutputStream dos2) {
         this.s1 = s1;
@@ -251,6 +279,7 @@ class ServerSocketHandler4 extends Thread {
                 switch (received1) {
 
                     case "connected":
+                        ackFromOthers += 1;
                         dos1.writeUTF("ok");
                         break;
 
@@ -276,6 +305,7 @@ class ServerSocketHandler4 extends Thread {
                 switch (received2) {
 
                     case "connected":
+                        ackFromOthers += 1;
                         dos2.writeUTF("ok");
                         break;
 
