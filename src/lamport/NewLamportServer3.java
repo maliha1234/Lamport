@@ -48,6 +48,7 @@ public class NewLamportServer3
   
                 // create a new thread object 
                 Thread t = new ServerHandler6(s, dis, dos); 
+                dos.writeUTF("connected");
   
                 // Invoking the start() method 
                 t.start(); 
@@ -78,12 +79,12 @@ class ServerHandler6 extends Thread
         this.dis = dis; 
         this.dos = dos; 
         
-           try {
+          /* try {
             dos.writeUTF("connected");
             
         } catch (IOException ex) {
             Logger.getLogger(ClientHandler4.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }*/
     } 
   
     @Override

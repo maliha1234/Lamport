@@ -57,6 +57,8 @@ public class NewLamportServer2 {
 
                     qList.add(queueClass);
                     
+                    dos.writeUTF("connected");
+                    
 
                     // Invoking the start() method 
                     t.start();
@@ -127,12 +129,12 @@ class ServerHandler5 extends Thread {
         this.timeStamp = time;
         this.receivedMessage = message;
 
-        try {
+       /* try {
             dos.writeUTF("connected");
 
         } catch (IOException ex) {
             Logger.getLogger(ClientHandler4.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }*/
     }
 
     @Override
