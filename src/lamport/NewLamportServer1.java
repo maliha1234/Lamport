@@ -65,17 +65,17 @@ public class NewLamportServer1 {
                     DataInputStream dis2 = new DataInputStream(s2.getInputStream());
                     DataOutputStream dos2 = new DataOutputStream(s2.getOutputStream());
 
+                    long timeStamp = System.currentTimeMillis();
                     // create a new thread object 
                     Thread t = new ClientHandler4(s, dis, dos);
 
-                    Thread sT = new ServerSocketHandler4(s1, dis1, dos1, s2, dis2, dos2);
+                    Thread sT = new ServerSocketHandler4(s1, dis1, dos1, s2, dis2, dos2, timeStamp, received);
 
-                    // String id = 
                     // Invoking the start() method 
                     t.start();
                     sT.start();
 
-                    QueueClass4 queueClass = new QueueClass4(System.currentTimeMillis(), 1, received, (ClientHandler4) t, (ServerSocketHandler4) sT);
+                    QueueClass4 queueClass = new QueueClass4(timeStamp, 1, received, (ClientHandler4) t, (ServerSocketHandler4) sT);
 
                     qList.add(queueClass);
 
@@ -242,25 +242,29 @@ class ServerSocketHandler4 extends Thread {
     final DataInputStream dis2;
     final DataOutputStream dos2;
     final Socket s2;
+    long timeStamp;
+    String receivedMessage;
 
     public int ackFromOthers = 0;
 
     // Constructor 
-    public ServerSocketHandler4(Socket s1, DataInputStream dis1, DataOutputStream dos1, Socket s2, DataInputStream dis2, DataOutputStream dos2) {
+    public ServerSocketHandler4(Socket s1, DataInputStream dis1, DataOutputStream dos1, Socket s2, DataInputStream dis2, DataOutputStream dos2, long time, String message) {
         this.s1 = s1;
         this.dis1 = dis1;
         this.dos1 = dos1;
         this.s2 = s2;
         this.dis2 = dis2;
         this.dos2 = dos2;
+        this.timeStamp = time;
+        this.receivedMessage = message;
 
-        /* try {
-                // Ask user what he wants 
-                 dos.writeUTF("connectedwithserver");
+        try {
+            // Ask user what he wants 
+            dos1.writeUTF("connectedwithserver," + timeStamp + "," + receivedMessage);
 
-            } catch (IOException ex) {
-                Logger.getLogger(ClientHandler4.class.getName()).log(Level.SEVERE, null, ex);
-            }*/
+        } catch (IOException ex) {
+            Logger.getLogger(ClientHandler4.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -285,6 +289,9 @@ class ServerSocketHandler4 extends Thread {
 
                     case "ackreceived":
                         dos1.writeUTF("okyoureceivedack");
+                        break;
+                    case "processedinserver2":
+                        dos1.writeUTF("processedinserver2gotit");
                         break;
 
                     case "ack":
