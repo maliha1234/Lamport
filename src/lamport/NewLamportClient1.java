@@ -40,6 +40,10 @@ public class NewLamportClient1 {
 
                         dos.writeUTF("HYk");
                         break;
+                        
+                    case "acktoclient":
+                        dos.writeUTF("acktoclientreceived");
+                        break;
 
                     default:
                         //  dos.writeUTF("Invalid input");

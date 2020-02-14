@@ -123,9 +123,9 @@ class ServerHandler6 extends Thread
                          
                         dos.writeUTF("okfromserver3"); 
                         break; 
-                    case "ack" : 
+                    case "ackto3" : 
                          
-                        dos.writeUTF("okfromserver3"); 
+                        dos.writeUTF("ackto3okfromserver3"); 
                         break; 
                           
                     case "okyoureceivedack" : 
