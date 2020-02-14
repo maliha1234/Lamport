@@ -107,6 +107,16 @@ public class NewLamportServer1 {
 
             }
 
+            for (int i = 0; i < qList.size(); i++) {
+                QueueClass4 q = qList.get(i);
+                if (qList.get(i).serverSocketHandler != null) {
+                    qList.get(i).serverSocketHandler.position = i;
+                }
+                if (qList.get(i).clientClassHandler != null) {
+                    qList.get(i).clientClassHandler.position = i;
+                }
+            }
+
         }
 
     }
@@ -123,14 +133,15 @@ public class NewLamportServer1 {
                     if (!qList.isEmpty()) {
                         QueueClass4 qClass = qList.get(0);
                         String task = qList.get(0).task;
-                        System.out.println("Hello World acks" + qClass.serverHandler.ackFromOthers + "\n");
+                        System.out.println("Hello World acks" + qClass.serverSocketHandler.ackFromOthers + "\n");
                         if (qClass.clientClassHandler != null) {
 
                             qClass.clientClassHandler.dos.writeUTF("acktoclient");
                         }
-                        if (qClass.serverHandler != null) {
-                            qClass.serverHandler.dos1.writeUTF("ackto2," + task);
-                            qClass.serverHandler.dos2.writeUTF("ackto3," + task);
+                        if (qClass.serverSocketHandler != null) {
+                            qClass.serverSocketHandler.dos1.writeUTF("Topackto2," + task);
+                            qClass.serverSocketHandler.dos2.writeUTF("Topackto3," + task);
+                            System.out.println("Hello World position" + qClass.serverSocketHandler.position + "\n");
 
                         }
 
@@ -157,6 +168,7 @@ class ClientHandler4 extends Thread {
     final DataInputStream dis;
     final DataOutputStream dos;
     final Socket s;
+    int position = -1;
 
     // Constructor 
     public ClientHandler4(Socket s, DataInputStream dis, DataOutputStream dos) {
@@ -246,6 +258,7 @@ class ServerSocketHandler4 extends Thread {
     String receivedMessage;
 
     public int ackFromOthers = 0;
+    int position = -1;
 
     // Constructor 
     public ServerSocketHandler4(Socket s1, DataInputStream dis1, DataOutputStream dos1, Socket s2, DataInputStream dis2, DataOutputStream dos2, long time, String message) {
@@ -304,6 +317,11 @@ class ServerSocketHandler4 extends Thread {
                         dos1.writeUTF("thanksackto2okfromserver2");
                         break;
 
+                    case "Yesackto2okfromserver2":
+
+                        dos1.writeUTF("thanksackto2okfromserver2");
+                        break;
+
                     default:
                         dos1.writeUTF("Invalid input");
                         break;
@@ -328,6 +346,10 @@ class ServerSocketHandler4 extends Thread {
                     case "ackto3okfromserver3":
 
                         dos2.writeUTF("thanksackto3okfromserver3");
+                        break;
+                    case "Yesackto2okfromserver3":
+
+                        dos1.writeUTF("thanksackto2okfromserver3");
                         break;
 
                     default:
@@ -384,8 +406,8 @@ class QueueClass4 {
     long timestamp;
     int serverId;
     String task;
-    ClientHandler4 clientClassHandler;
-    ServerSocketHandler4 serverHandler;
+    ClientHandler4 clientClassHandler = null;
+    ServerSocketHandler4 serverSocketHandler = null;
 
     // Constructor 
     public QueueClass4(long timeStamp, int serverId, String task, ClientHandler4 c, ServerSocketHandler4 s) {
@@ -393,7 +415,7 @@ class QueueClass4 {
         this.timestamp = timeStamp;
         this.task = task;
         this.clientClassHandler = c;
-        this.serverHandler = s;
+        this.serverSocketHandler = s;
 
     }
 }

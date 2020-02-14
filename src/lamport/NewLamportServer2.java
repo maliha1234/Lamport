@@ -21,7 +21,7 @@ public class NewLamportServer2 {
     public static void main(String[] args) throws IOException {
         // server is listening on port 5056 
         ServerSocket ss = new ServerSocket(5051);
-         if (flag == 0) {
+        if (flag == 0) {
             startQueueThread();
             flag = 1;
         }
@@ -56,12 +56,12 @@ public class NewLamportServer2 {
                     QueueClass5 queueClass = new QueueClass5(timeStamp, 1, message, (ServerHandler5) t);
 
                     qList.add(queueClass);
-                    
+
                     dos.writeUTF("connected");
-                    
 
                     // Invoking the start() method 
                     t.start();
+                    sortQueue();
                 }
 
             } catch (Exception e) {
@@ -70,7 +70,7 @@ public class NewLamportServer2 {
             }
         }
     }
-    
+
     public static void startQueueThread() throws IOException {
         Timer t = new Timer();
         System.out.println("Hello World Timer ini");
@@ -89,8 +89,8 @@ public class NewLamportServer2 {
                             qClass.clientClassHandler.dos.writeUTF("acktoclient");
                         }
                         if (qClass.serverHandler != null) {
-                            qClass.serverHandler.dos.writeUTF("processedinserver2");
-                           // qClass.serverHandler.dos2.writeUTF("ackto3," + task);
+                           // qClass.serverHandler.dos.writeUTF("processedinserver2");
+                            // qClass.serverHandler.dos2.writeUTF("ackto3," + task);
 
                         }
 
@@ -107,6 +107,43 @@ public class NewLamportServer2 {
         }, 0, 5000);
 
     }
+
+    public static void sortQueue() {
+
+        for (int j = 0; j < qList.size(); j++) {
+
+            for (int i = j + 1; i < qList.size(); i++) {
+
+                if (qList.get(i).timestamp < qList.get(j).timestamp) {
+
+                    QueueClass5 q = qList.get(j);
+
+                    qList.set(j, qList.get(i));
+
+                    qList.set(i, q);
+
+                }
+
+            }
+
+            for (int i = 0; i < qList.size(); i++) {
+                QueueClass5 q = qList.get(i);
+                /* if (qList.get(i).serverHandler != null) {
+                    qList.get(i).serverHandler.position = i;
+                }
+                if (qList.get(i).clientClassHandler != null) {
+                    qList.get(i).clientClassHandler.position = i;
+                }*/
+
+                if (qList.get(i).serverHandler != null) {
+                    qList.get(i).serverHandler.position = i;
+                }
+
+            }
+
+        }
+
+    }
 }
 
 // ClientHandler class 
@@ -120,6 +157,7 @@ class ServerHandler5 extends Thread {
 
     long timeStamp;
     String receivedMessage;
+    int position = -1;
 
     // Constructor 
     public ServerHandler5(Socket s, DataInputStream dis, DataOutputStream dos, long time, String message) {
@@ -129,7 +167,7 @@ class ServerHandler5 extends Thread {
         this.timeStamp = time;
         this.receivedMessage = message;
 
-       /* try {
+        /* try {
             dos.writeUTF("connected");
 
         } catch (IOException ex) {
@@ -176,7 +214,7 @@ class ServerHandler5 extends Thread {
 
                         dos.writeUTF("ackto2okfromserver2");
                         break;
-                    case "connectedwithserver":
+                    case "connectedwithserver": // not working
 
                         dos.writeUTF("connectedwithserver2Received");
                         break;
@@ -185,6 +223,12 @@ class ServerHandler5 extends Thread {
                         dos.writeUTF(toreturn);
                         break;
 
+                    case "Topackto2":
+
+                        if(this.position ==0)
+                        dos.writeUTF("Yesackto2okfromserver2");
+                        else dos.writeUTF("Noackto2okfromserver2");
+                        break;
                     default:
                         //dos.writeUTF("Invalid input"); 
                         break;
