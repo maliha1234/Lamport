@@ -103,8 +103,8 @@ public class NewLamportServer1 {
                             qClass.clientClassHandler.dos.writeUTF("acktoclient");
                         }
                         if (qClass.serverHandler != null) {
-                            qClass.serverHandler.dos1.writeUTF("ackto2");
-                            qClass.serverHandler.dos2.writeUTF("ackto3");
+                            qClass.serverHandler.dos1.writeUTF("ackto2," + task);
+                            qClass.serverHandler.dos2.writeUTF("ackto3," + task);
 
                         }
 

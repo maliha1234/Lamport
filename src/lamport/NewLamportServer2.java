@@ -110,7 +110,9 @@ class ServerHandler5 extends Thread
                   
                 // write on output stream based on the 
                 // answer from the client 
-                switch (received) { 
+                String[] arrOfStr = received.split(",", 5); 
+                System.out.println(arrOfStr[0]); 
+                switch (arrOfStr[0]) { 
                   
                     case "ok" : 
                          
