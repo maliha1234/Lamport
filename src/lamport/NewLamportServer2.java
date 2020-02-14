@@ -56,6 +56,7 @@ public class NewLamportServer2 {
                     QueueClass5 queueClass = new QueueClass5(timeStamp, 1, message, (ServerHandler5) t);
 
                     qList.add(queueClass);
+                    
 
                     // Invoking the start() method 
                     t.start();

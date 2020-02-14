@@ -23,7 +23,7 @@ public class LamportServer2 {
         // server is listening on port 5058 
         ServerSocket ss = new ServerSocket(5058);
         if (flag == 0) {
-     //       startQueueThread();
+            //       startQueueThread();
             flag = 1;
         }
 
@@ -66,10 +66,9 @@ public class LamportServer2 {
 
                     //
                     // Invoking the start() method 
-                   
                 } else if (received.contains("socket")) {
                     System.out.println(received);
-                    
+
                     // obtaining input and out streams 
                     DataInputStream dis = new DataInputStream(s.getInputStream());
                     DataOutputStream dos = new DataOutputStream(s.getOutputStream());
@@ -88,7 +87,6 @@ public class LamportServer2 {
                     //
                     sortQueue();
 
-                   
                 }
 
             } catch (Exception e) {
@@ -109,9 +107,9 @@ public class LamportServer2 {
                     if (!qList.isEmpty()) {
                         QueueClass2 qClass = qList.get(0);
                         String task = qList.get(0).task;
-                        
-                           System.out.println("Hello World" + task + "\n");    
-                         if (qClass.clientClassHandler != null) {
+
+                        System.out.println("Hello World" + task + "\n");
+                        if (qClass.clientClassHandler != null) {
                             qClass.clientClassHandler.dos1.writeUTF("ack" + task + "From Server2");
                             qClass.clientClassHandler.dos2.writeUTF("ack" + task + "from Server2");
 
@@ -120,9 +118,8 @@ public class LamportServer2 {
                         if (qClass.serverHandler != null) {
                             System.out.println("Hello World from server handler" + task + "\n");
                             qClass.serverHandler.dos3.writeUTF("ack" + task + "from Server2 to other server");
-                          //  qClass.serverHandler.dos2.writeUTF("ack" + task + "Server3");
+                            //  qClass.serverHandler.dos2.writeUTF("ack" + task + "Server3");
 
-                           
                         }
 
                         for (QueueClass2 qq : qList) {
@@ -339,9 +336,9 @@ class ServerHandler2 extends Thread {
         }
         sendMessage();
     }
-    
-    public void sendMessage(){
-    
+
+    public void sendMessage() {
+
         try {
             this.dos3.writeUTF("Hi from server 2");
         } catch (IOException ex) {
