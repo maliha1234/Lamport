@@ -139,9 +139,17 @@ public class NewLamportServer1 {
                             qClass.clientClassHandler.dos.writeUTF("acktoclient");
                         }
                         if (qClass.serverSocketHandler != null) {
-                            qClass.serverSocketHandler.dos1.writeUTF("Topackto2," + task);
-                            qClass.serverSocketHandler.dos2.writeUTF("Topackto3," + task);
-                            System.out.println("Hello World position" + qClass.serverSocketHandler.position + "\n");
+                            if (qClass.serverSocketHandler.ackFromOthers == 2) {
+                                qList.remove(qClass);
+                                qClass.serverSocketHandler.dos1.writeUTF("removefrom2," + qClass.timestamp + "," + qClass.task);
+                                qClass.serverSocketHandler.dos2.writeUTF("removefrom3," + qClass.timestamp + "," + qClass.task);
+                                
+                                
+                            } else {
+                                qClass.serverSocketHandler.dos1.writeUTF("Topackto2," + task);
+                                qClass.serverSocketHandler.dos2.writeUTF("Topackto3," + task);
+                                System.out.println("Hello World position" + qClass.serverSocketHandler.position + "\n");
+                            }
 
                         }
 
@@ -296,7 +304,7 @@ class ServerSocketHandler4 extends Thread {
                 switch (received1) {
 
                     case "connected":
-                      //  ackFromOthers += 1;
+                        //  ackFromOthers += 1;
                         dos1.writeUTF("ok");
                         break;
 
@@ -403,8 +411,8 @@ class ServerSocketHandler4 extends Thread {
     }*/
 class QueueClass4 {
 
-    long timestamp;
-    int serverId;
+    public long timestamp;
+    public int serverId;
     String task;
     ClientHandler4 clientClassHandler = null;
     ServerSocketHandler4 serverSocketHandler = null;

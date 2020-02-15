@@ -89,7 +89,7 @@ public class NewLamportServer2 {
                             qClass.clientClassHandler.dos.writeUTF("acktoclient");
                         }
                         if (qClass.serverHandler != null) {
-                           // qClass.serverHandler.dos.writeUTF("processedinserver2");
+                            // qClass.serverHandler.dos.writeUTF("processedinserver2");
                             // qClass.serverHandler.dos2.writeUTF("ackto3," + task);
 
                         }
@@ -225,9 +225,27 @@ class ServerHandler5 extends Thread {
 
                     case "Topackto2":
 
-                        if(this.position ==0)
-                        dos.writeUTF("Yesackto2okfromserver2");
-                        else dos.writeUTF("Noackto2okfromserver2");
+                        if (this.position == 0) {
+                            dos.writeUTF("Yesackto2okfromserver2");
+                        } else {
+                            dos.writeUTF("Noackto2okfromserver2");
+                        }
+                        break;
+
+                    case "removefrom2":
+                        for (int i = 0; i < NewLamportServer2.qList.size(); i++) {
+                            QueueClass5 q = NewLamportServer2.qList.get(i);
+                            System.out.println( NewLamportServer2.qList.get(i).timestamp + ":: " + arrOfStr[1]);
+                            System.out.println( NewLamportServer2.qList.get(i).task + ":: " + arrOfStr[2]);
+                            if ((NewLamportServer2.qList.get(i).timestamp == Long.parseLong(arrOfStr[1])) && (arrOfStr[2].equals(NewLamportServer2.qList.get(i).task))) {
+                                System.out.println("foundHere" + i);
+                              //   dos.writeUTF("foundHere" + i);
+                            }
+
+                        }
+
+                       
+
                         break;
                     default:
                         //dos.writeUTF("Invalid input"); 
@@ -251,9 +269,9 @@ class ServerHandler5 extends Thread {
 
 class QueueClass5 {
 
-    long timestamp;
+    public long timestamp;
     int serverId;
-    String task;
+    public String task;
     ClientHandler4 clientClassHandler;
     ServerHandler5 serverHandler;
 
