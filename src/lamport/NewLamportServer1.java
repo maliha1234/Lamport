@@ -141,10 +141,30 @@ public class NewLamportServer1 {
                         if (qClass.serverSocketHandler != null) {
                             if (qClass.serverSocketHandler.ackFromOthers == 2) {
                                 qList.remove(qClass);
+
                                 qClass.serverSocketHandler.dos1.writeUTF("removefrom2," + qClass.timestamp + "," + qClass.task);
                                 qClass.serverSocketHandler.dos2.writeUTF("removefrom3," + qClass.timestamp + "," + qClass.task);
-                                
-                                
+                                // do the task here
+
+                                String[] arrOfStr = task.split("@", 5);
+                                System.out.println(arrOfStr[0]);
+                                if (arrOfStr[0].equals("write")) {
+                                    System.out.println("Task detail" + qClass.task + "\n");
+                                    
+                                    try {
+                                        String str = arrOfStr[2];
+
+                                        // Open given file in append mode. 
+                                        BufferedWriter out = new BufferedWriter(
+                                                new FileWriter("/Users/malihasarwat/Documents/Spring2020/AOS/Project/Lamport/src/lamport/"+ arrOfStr[1], true));
+                                        out.write(str);
+                                        out.close();
+                                    } catch (IOException e) {
+                                        System.out.println("exception occoured" + e);
+                                    }
+                                }
+
+                                //
                             } else {
                                 qClass.serverSocketHandler.dos1.writeUTF("Topackto2," + task);
                                 qClass.serverSocketHandler.dos2.writeUTF("Topackto3," + task);

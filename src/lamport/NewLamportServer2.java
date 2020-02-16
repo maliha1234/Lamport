@@ -239,7 +239,11 @@ class ServerHandler5 extends Thread {
                             System.out.println( NewLamportServer2.qList.get(i).task + ":: " + arrOfStr[2]);
                             if ((NewLamportServer2.qList.get(i).timestamp == Long.parseLong(arrOfStr[1])) && (arrOfStr[2].equals(NewLamportServer2.qList.get(i).task))) {
                                 System.out.println("foundHere" + i);
-                              //   dos.writeUTF("foundHere" + i);
+                                //remove it from queue and perform the task now
+                                
+                                //
+                                 dos.writeUTF("removingdone");
+                                 //
                             }
 
                         }
