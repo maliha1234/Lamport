@@ -129,9 +129,9 @@ class ServerHandler6 extends Thread {
 
                         break;
                         
-                        case "removefrom3":
+                        case "processin3":
 
-                        dos.writeUTF("Yesackto3okfromserver3");
+                        dos.writeUTF("processin3done");
 
                         break;
 

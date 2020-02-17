@@ -130,7 +130,7 @@ public class NewLamportServer1 {
 
                 try {
                     System.out.println("Hello World" + qList);
-                    if (qList.size()>0) {
+                    if (qList.size() > 0) {
                         QueueClass4 qClass = qList.get(0);
                         String task = qList.get(0).task;
                         System.out.println("Hello World acks" + qClass.serverSocketHandler.ackFromOthers + "\n");
@@ -139,11 +139,12 @@ public class NewLamportServer1 {
                             qClass.clientClassHandler.dos.writeUTF("acktoclient");
                         }
                         if (qClass.serverSocketHandler != null) {
-                            if (qClass.serverSocketHandler.ackFromOthers == 2) {
+                            if (qClass.serverSocketHandler.ackFromOthers == 2 ) {
                                 qList.remove(qClass);
 
-                                qClass.serverSocketHandler.dos1.writeUTF("removefrom2," + qClass.timestamp + "," + qClass.task);
-                                qClass.serverSocketHandler.dos2.writeUTF("removefrom3," + qClass.timestamp + "," + qClass.task);
+                                //1 is entering cS and asking other also
+                                qClass.serverSocketHandler.dos1.writeUTF("processin2," + qClass.timestamp + "," + qClass.task);
+                                qClass.serverSocketHandler.dos2.writeUTF("processin3," + qClass.timestamp + "," + qClass.task);
                                 // do the task here
 
                                 String[] arrOfStr = task.split("@", 5);
@@ -163,8 +164,6 @@ public class NewLamportServer1 {
                                         System.out.println("exception occoured" + e);
                                     }
                                 }
-                                
-                                
 
                                 //
                             } else {
@@ -289,6 +288,7 @@ class ServerSocketHandler4 extends Thread {
 
     public int ackFromOthers = 0;
     int position = -1;
+    int processingDone = 0;
 
     // Constructor 
     public ServerSocketHandler4(Socket s1, DataInputStream dis1, DataOutputStream dos1, Socket s2, DataInputStream dis2, DataOutputStream dos2, long time, String message) {
@@ -352,6 +352,12 @@ class ServerSocketHandler4 extends Thread {
                         dos1.writeUTF("thanksackto2okfromserver2");
                         break;
 
+                    case "processin2done":
+                        processingDone += 1;
+                        System.out.println("processed count " + processingDone);
+                        dos1.writeUTF("processin2doneThanks");
+                        break;
+
                     default:
                         dos1.writeUTF("Invalid input");
                         break;
@@ -380,6 +386,12 @@ class ServerSocketHandler4 extends Thread {
                     case "Yesackto2okfromserver3":
                         ackFromOthers += 1;
                         dos2.writeUTF("thanksackto2okfromserver3");
+                        break;
+
+                    case "processin3done":
+                        processingDone += 1;
+                        System.out.println("processed count " + processingDone);
+                        dos2.writeUTF("processin3doneThanks");
                         break;
 
                     default:

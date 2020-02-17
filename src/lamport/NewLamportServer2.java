@@ -232,7 +232,7 @@ class ServerHandler5 extends Thread {
                         }
                         break;
 
-                    case "removefrom2":
+                    case "processin2":
                         for (int i = 0; i < NewLamportServer2.qList.size(); i++) {
                             QueueClass5 q = NewLamportServer2.qList.get(i);
                             System.out.println( NewLamportServer2.qList.get(i).timestamp + ":: " + arrOfStr[1]);
@@ -262,15 +262,15 @@ class ServerHandler5 extends Thread {
                                 NewLamportServer2.qList.remove(i);
                                 
                                 //
-                                 dos.writeUTF("removingdone2");
+                                 dos.writeUTF("processin2done");
                                  //
                             }
 
                         }
 
-                       
-
                         break;
+                        
+                        
                     default:
                         //dos.writeUTF("Invalid input"); 
                         break;
