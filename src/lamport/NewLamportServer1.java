@@ -130,7 +130,7 @@ public class NewLamportServer1 {
 
                 try {
                     System.out.println("Hello World" + qList);
-                    if (!qList.isEmpty()) {
+                    if (qList.size()>0) {
                         QueueClass4 qClass = qList.get(0);
                         String task = qList.get(0).task;
                         System.out.println("Hello World acks" + qClass.serverSocketHandler.ackFromOthers + "\n");
@@ -150,13 +150,13 @@ public class NewLamportServer1 {
                                 System.out.println(arrOfStr[0]);
                                 if (arrOfStr[0].equals("write")) {
                                     System.out.println("Task detail" + qClass.task + "\n");
-                                    
+
                                     try {
                                         String str = arrOfStr[2];
 
                                         // Open given file in append mode. 
                                         BufferedWriter out = new BufferedWriter(
-                                                new FileWriter("/Users/malihasarwat/Documents/Spring2020/AOS/Project/Lamport/src/lamport/"+ arrOfStr[1], true));
+                                                new FileWriter("/Users/malihasarwat/Documents/Spring2020/AOS/Project/Lamport/src/lamport/" + arrOfStr[1], true));
                                         out.write(str);
                                         out.close();
                                     } catch (IOException e) {
@@ -377,7 +377,7 @@ class ServerSocketHandler4 extends Thread {
                         break;
                     case "Yesackto2okfromserver3":
                         ackFromOthers += 1;
-                        dos1.writeUTF("thanksackto2okfromserver3");
+                        dos2.writeUTF("thanksackto2okfromserver3");
                         break;
 
                     default:

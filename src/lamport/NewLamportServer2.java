@@ -241,6 +241,26 @@ class ServerHandler5 extends Thread {
                                 System.out.println("foundHere" + i);
                                 //remove it from queue and perform the task now
                                 
+                                    String[] arrOfStr_task = arrOfStr[2].split("@", 5);
+                                System.out.println(arrOfStr_task[0]);
+                                if (arrOfStr_task[0].equals("write")) {
+                                    System.out.println("Task detail" + arrOfStr[2] + "\n");
+
+                                    try {
+                                        String str = arrOfStr_task[2];
+                                        System.out.println("string to append" + str + "\n");
+
+                                        // Open given file in append mode. 
+                                        BufferedWriter out = new BufferedWriter(
+                                                new FileWriter("/Users/malihasarwat/Documents/Spring2020/AOS/Project/Lamport/src/lamport/copy" + arrOfStr_task[1], true));
+                                        out.write(str);
+                                        out.close();
+                                    } catch (IOException e) {
+                                        System.out.println("exception occoured" + e);
+                                    }
+                                }
+                                NewLamportServer2.qList.remove(i);
+                                
                                 //
                                  dos.writeUTF("removingdone");
                                  //
