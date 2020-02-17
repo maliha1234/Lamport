@@ -262,7 +262,7 @@ class ServerHandler5 extends Thread {
                                 NewLamportServer2.qList.remove(i);
                                 
                                 //
-                                 dos.writeUTF("removingdone");
+                                 dos.writeUTF("removingdone2");
                                  //
                             }
 

@@ -163,6 +163,8 @@ public class NewLamportServer1 {
                                         System.out.println("exception occoured" + e);
                                     }
                                 }
+                                
+                                
 
                                 //
                             } else {

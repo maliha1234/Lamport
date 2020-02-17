@@ -128,6 +128,12 @@ class ServerHandler6 extends Thread {
                         dos.writeUTF("Yesackto2okfromserver3");
 
                         break;
+                        
+                        case "removefrom3":
+
+                        dos.writeUTF("Yesackto3okfromserver3");
+
+                        break;
 
                     default:
                         //dos.writeUTF("Invalid input"); 
