@@ -69,7 +69,7 @@ public class NewLamportServer1 {
                     // create a new thread object 
                     Thread t = new ClientHandler4(s, dis, dos);
 
-                    Thread sT = new ServerSocketHandler4(s1, dis1, dos1, s2, dis2, dos2, timeStamp, received);
+                    Thread sT = new ServerSocketHandler4(s1, dis1, dos1, s2, dis2, dos2, timeStamp, received, dis, dos);
 
                     // Invoking the start() method 
                     t.start();
@@ -283,15 +283,23 @@ class ServerSocketHandler4 extends Thread {
     final DataInputStream dis2;
     final DataOutputStream dos2;
     final Socket s2;
+    
+    
+    final DataInputStream dis;
+    final DataOutputStream dos;
+    
+    
     long timeStamp;
     String receivedMessage;
+    
+    
 
     public int ackFromOthers = 0;
     int position = -1;
     int processingDone = 0;
 
     // Constructor 
-    public ServerSocketHandler4(Socket s1, DataInputStream dis1, DataOutputStream dos1, Socket s2, DataInputStream dis2, DataOutputStream dos2, long time, String message) {
+    public ServerSocketHandler4(Socket s1, DataInputStream dis1, DataOutputStream dos1, Socket s2, DataInputStream dis2, DataOutputStream dos2, long time, String message, DataInputStream dis, DataOutputStream dos) {
         this.s1 = s1;
         this.dis1 = dis1;
         this.dos1 = dos1;
@@ -300,6 +308,9 @@ class ServerSocketHandler4 extends Thread {
         this.dos2 = dos2;
         this.timeStamp = time;
         this.receivedMessage = message;
+        
+        this.dis = dis;
+        this.dos = dos;
 
         try {
             // Ask user what he wants 
@@ -333,9 +344,9 @@ class ServerSocketHandler4 extends Thread {
                     case "ackreceived":
                         dos1.writeUTF("okyoureceivedack");
                         break;
-                    case "processedinserver2":
-                        dos1.writeUTF("processedinserver2gotit");
-                        break;
+               //     case "processedinserver2":
+               //         dos1.writeUTF("processedinserver2gotit");
+               //         break;
 
                     case "ack":
 
@@ -355,6 +366,8 @@ class ServerSocketHandler4 extends Thread {
                     case "processin2done":
                         processingDone += 1;
                         System.out.println("processed count " + processingDone);
+                        if(processingDone ==2)
+                            dos.writeUTF("success");
                         dos1.writeUTF("processin2doneThanks");
                         break;
 
@@ -391,6 +404,8 @@ class ServerSocketHandler4 extends Thread {
                     case "processin3done":
                         processingDone += 1;
                         System.out.println("processed count " + processingDone);
+                        if(processingDone ==2)
+                            dos.writeUTF("success");
                         dos2.writeUTF("processin3doneThanks");
                         break;
 
