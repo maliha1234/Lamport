@@ -80,7 +80,7 @@ public class NewLamportServer1 {
                     qList.add(queueClass);
 
                     sortQueue();
-                }
+                } 
 
             } catch (Exception e) {
                 s.close();
@@ -115,6 +115,9 @@ public class NewLamportServer1 {
                 if (qList.get(i).clientClassHandler != null) {
                     qList.get(i).clientClassHandler.position = i;
                 }
+                if (qList.get(i).serverHandler != null) {
+                    qList.get(i).serverHandler.position = i;
+                }
             }
 
         }
@@ -139,7 +142,7 @@ public class NewLamportServer1 {
                             qClass.clientClassHandler.dos.writeUTF("acktoclient");
                         }
                         if (qClass.serverSocketHandler != null) {
-                            if (qClass.serverSocketHandler.ackFromOthers == 2 ) {
+                            if (qClass.serverSocketHandler.ackFromOthers == 2) {
                                 qList.remove(qClass);
 
                                 //1 is entering cS and asking other also
@@ -184,7 +187,7 @@ public class NewLamportServer1 {
                 }
 
             }
-        }, 0, 100);
+        }, 0, 5000);
 
     }
 }
@@ -283,16 +286,12 @@ class ServerSocketHandler4 extends Thread {
     final DataInputStream dis2;
     final DataOutputStream dos2;
     final Socket s2;
-    
-    
+
     final DataInputStream dis;
     final DataOutputStream dos;
-    
-    
+
     long timeStamp;
     String receivedMessage;
-    
-    
 
     public int ackFromOthers = 0;
     int position = -1;
@@ -308,7 +307,7 @@ class ServerSocketHandler4 extends Thread {
         this.dos2 = dos2;
         this.timeStamp = time;
         this.receivedMessage = message;
-        
+
         this.dis = dis;
         this.dos = dos;
 
@@ -344,9 +343,9 @@ class ServerSocketHandler4 extends Thread {
                     case "ackreceived":
                         dos1.writeUTF("okyoureceivedack");
                         break;
-               //     case "processedinserver2":
-               //         dos1.writeUTF("processedinserver2gotit");
-               //         break;
+                    //     case "processedinserver2":
+                    //         dos1.writeUTF("processedinserver2gotit");
+                    //         break;
 
                     case "ack":
 
@@ -366,8 +365,9 @@ class ServerSocketHandler4 extends Thread {
                     case "processin2done":
                         processingDone += 1;
                         System.out.println("processed count " + processingDone);
-                        if(processingDone ==2)
+                        if (processingDone == 2) {
                             dos.writeUTF("success");
+                        }
                         dos1.writeUTF("processin2doneThanks");
                         break;
 
@@ -396,16 +396,17 @@ class ServerSocketHandler4 extends Thread {
 
                         dos2.writeUTF("thanksackto3okfromserver3");
                         break;
-                    case "Yesackto2okfromserver3":
+                    case "Yesackto3okfromserver3":
                         ackFromOthers += 1;
-                        dos2.writeUTF("thanksackto2okfromserver3");
+                        dos2.writeUTF("thanksackto3okfromserver3");
                         break;
 
                     case "processin3done":
                         processingDone += 1;
                         System.out.println("processed count " + processingDone);
-                        if(processingDone ==2)
+                        if (processingDone == 2) {
                             dos.writeUTF("success");
+                        }
                         dos2.writeUTF("processin3doneThanks");
                         break;
 
@@ -458,6 +459,146 @@ class ServerSocketHandler4 extends Thread {
         }
 
     }*/
+class ServerHandler4 extends Thread {
+
+    DateFormat fordate = new SimpleDateFormat("yyyy/MM/dd");
+    DateFormat fortime = new SimpleDateFormat("hh:mm:ss");
+    final DataInputStream dis;
+    final DataOutputStream dos;
+    final Socket s;
+
+    long timeStamp;
+    String receivedMessage;
+    int position = -1;
+
+    // Constructor 
+    public ServerHandler4(Socket s, DataInputStream dis, DataOutputStream dos, long time, String message) {
+        this.s = s;
+        this.dis = dis;
+        this.dos = dos;
+        this.timeStamp = time;
+        this.receivedMessage = message;
+
+        /* try {
+            dos.writeUTF("connected");
+
+        } catch (IOException ex) {
+            Logger.getLogger(ClientHandler4.class.getName()).log(Level.SEVERE, null, ex);
+        }*/
+    }
+
+    @Override
+    public void run() {
+        String received;
+        String toreturn;
+
+        while (true) {
+            try {
+
+                // Ask user what he wants 
+                //  dos.writeUTF("server 2"); 
+                // receive the answer from client 
+                received = dis.readUTF();
+                System.out.println(received);
+
+                if (received.equals("Exit")) {
+                    System.out.println("Client " + this.s + " sends exit...");
+                    System.out.println("Closing this connection.");
+                    this.s.close();
+                    System.out.println("Connection closed");
+                    break;
+                }
+
+                // creating Date object 
+                Date date = new Date();
+
+                // write on output stream based on the 
+                // answer from the client 
+                String[] arrOfStr = received.split(",", 5);
+                System.out.println(arrOfStr[0]);
+                switch (arrOfStr[0]) {
+
+                    case "ok":
+
+                        dos.writeUTF("okfromserver1");
+                        break;
+                    case "ackto1":
+
+                        dos.writeUTF("ackt1okfromserver1");
+                        break;
+                    
+                    case "okyoureceivedack":
+                        toreturn = fortime.format(date);
+                        dos.writeUTF(toreturn);
+                        break;
+
+                    case "Topackto1":
+
+                        if (this.position == 0) {
+                            dos.writeUTF("Yesackto1okfromserver1");
+                        } else {
+                            dos.writeUTF("Noackto1okfromserver1");
+                        }
+                        break;
+
+                    case "processin1":
+                        for (int i = 0; i < NewLamportServer1.qList.size(); i++) {
+                            QueueClass4 q = NewLamportServer1.qList.get(i);
+                            System.out.println(NewLamportServer1.qList.get(i).timestamp + ":: " + arrOfStr[1]);
+                            System.out.println(NewLamportServer1.qList.get(i).task + ":: " + arrOfStr[2]);
+                            if ((NewLamportServer1.qList.get(i).timestamp == Long.parseLong(arrOfStr[1])) && (arrOfStr[2].equals(NewLamportServer1.qList.get(i).task))) {
+                                System.out.println("foundHere" + i);
+                                //remove it from queue and perform the task now
+
+                                String[] arrOfStr_task = arrOfStr[2].split("@", 5);
+                                System.out.println(arrOfStr_task[0]);
+                                if (arrOfStr_task[0].equals("write")) {
+                                    System.out.println("Task detail" + arrOfStr[2] + "\n");
+
+                                    try {
+                                        String str = arrOfStr_task[2];
+                                        System.out.println("string to append" + str + "\n");
+
+                                        // Open given file in append mode. 
+                                        BufferedWriter out = new BufferedWriter(
+                                                new FileWriter("/Users/malihasarwat/Documents/Spring2020/AOS/Project/Lamport/src/lamport/copy" + arrOfStr_task[1], true));
+                                        out.write(str);
+                                        out.close();
+                                    } catch (IOException e) {
+                                        System.out.println("exception occoured" + e);
+                                    }
+                                }
+                                NewLamportServer1.qList.remove(i);
+
+                                //
+                                dos.writeUTF("processin1done");
+                                //
+                            }
+
+                        }
+
+                        break;
+
+                    default:
+                        //dos.writeUTF("Invalid input"); 
+                        break;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            // closing resources 
+            this.dis.close();
+            this.dos.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
 class QueueClass4 {
 
     public long timestamp;
@@ -465,6 +606,7 @@ class QueueClass4 {
     String task;
     ClientHandler4 clientClassHandler = null;
     ServerSocketHandler4 serverSocketHandler = null;
+    ServerHandler4 serverHandler = null;
 
     // Constructor 
     public QueueClass4(long timeStamp, int serverId, String task, ClientHandler4 c, ServerSocketHandler4 s) {
@@ -473,6 +615,15 @@ class QueueClass4 {
         this.task = task;
         this.clientClassHandler = c;
         this.serverSocketHandler = s;
+
+    }
+
+    // Constructor 
+    public QueueClass4(long timeStamp, int serverId, String task, ServerHandler4 s) {
+        this.serverId = serverId;
+        this.timestamp = timeStamp;
+        this.task = task;
+        this.serverHandler = s;
 
     }
 }

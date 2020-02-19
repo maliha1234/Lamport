@@ -125,7 +125,7 @@ class ServerHandler6 extends Thread {
                         break;
                     case "Topackto3":
 
-                        dos.writeUTF("Yesackto2okfromserver3");
+                        dos.writeUTF("Yesackto3okfromserver3");
 
                         break;
                         

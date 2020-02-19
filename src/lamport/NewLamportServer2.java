@@ -39,7 +39,7 @@ public class NewLamportServer2 {
                 String received = new DataInputStream(s.getInputStream()).readUTF();
                 System.out.println("in main" + received);
 
-                if (received.contains("connectedwithserver")) {
+               if (received.contains("connectedwithserver")) {
 
                     String[] arrOfStr = received.split(",", 5);
                     System.out.println(arrOfStr[0]);
@@ -79,14 +79,49 @@ public class NewLamportServer2 {
             public void run() {
 
                 try {
-                    System.out.println("Hello World" + qList);
-                    if (!qList.isEmpty()) {
+                   System.out.println("Hello World" + qList);
+                    if (qList.size() > 0) {
                         QueueClass5 qClass = qList.get(0);
                         String task = qList.get(0).task;
-                        System.out.println("Hello World task in server 2" + task + "\n");
+                        System.out.println("Hello World acks" + qClass.serverSocketHandler.ackFromOthers + "\n");
                         if (qClass.clientClassHandler != null) {
 
                             qClass.clientClassHandler.dos.writeUTF("acktoclient");
+                        }
+                        if (qClass.serverSocketHandler != null) {
+                            if (qClass.serverSocketHandler.ackFromOthers == 2 ) {
+                                qList.remove(qClass);
+
+                                //1 is entering cS and asking other also
+                                qClass.serverSocketHandler.dos1.writeUTF("processin1," + qClass.timestamp + "," + qClass.task);
+                                qClass.serverSocketHandler.dos2.writeUTF("processin3," + qClass.timestamp + "," + qClass.task);
+                                // do the task here
+
+                                String[] arrOfStr = task.split("@", 5);
+                                System.out.println(arrOfStr[0]);
+                                if (arrOfStr[0].equals("write")) {
+                                    System.out.println("Task detail" + qClass.task + "\n");
+
+                                    try {
+                                        String str = arrOfStr[2];
+
+                                        // Open given file in append mode. 
+                                        BufferedWriter out = new BufferedWriter(
+                                                new FileWriter("/Users/malihasarwat/Documents/Spring2020/AOS/Project/Lamport/src/lamport/" + arrOfStr[1], true));
+                                        out.write(str);
+                                        out.close();
+                                    } catch (IOException e) {
+                                        System.out.println("exception occoured" + e);
+                                    }
+                                }
+
+                                //
+                            } else {
+                                qClass.serverSocketHandler.dos1.writeUTF("Topackto1," + task);
+                                qClass.serverSocketHandler.dos2.writeUTF("Topackto3," + task);
+                                System.out.println("Hello World position" + qClass.serverSocketHandler.position + "\n");
+                            }
+
                         }
                         if (qClass.serverHandler != null) {
                             // qClass.serverHandler.dos.writeUTF("processedinserver2");
@@ -128,12 +163,12 @@ public class NewLamportServer2 {
 
             for (int i = 0; i < qList.size(); i++) {
                 QueueClass5 q = qList.get(i);
-                /* if (qList.get(i).serverHandler != null) {
-                    qList.get(i).serverHandler.position = i;
+                if (qList.get(i).serverSocketHandler != null) {
+                    qList.get(i).serverSocketHandler.position = i;
                 }
                 if (qList.get(i).clientClassHandler != null) {
                     qList.get(i).clientClassHandler.position = i;
-                }*/
+                }
 
                 if (qList.get(i).serverHandler != null) {
                     qList.get(i).serverHandler.position = i;
@@ -147,6 +182,237 @@ public class NewLamportServer2 {
 }
 
 // ClientHandler class 
+class ClientHandler5 extends Thread {
+
+    DateFormat fordate = new SimpleDateFormat("yyyy/MM/dd");
+    DateFormat fortime = new SimpleDateFormat("hh:mm:ss");
+    final DataInputStream dis;
+    final DataOutputStream dos;
+    final Socket s;
+    int position = -1;
+
+    // Constructor 
+    public ClientHandler5(Socket s, DataInputStream dis, DataOutputStream dos) {
+        this.s = s;
+        this.dis = dis;
+        this.dos = dos;
+
+        try {
+            // Ask user what he wants 
+            dos.writeUTF("connectedwithclient");
+
+        } catch (IOException ex) {
+            Logger.getLogger(ClientHandler5.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public void run() {
+        String received;
+        String received1;
+        String toreturn;
+
+        while (true) {
+            try {
+
+                // receive the answer from client 
+                received = dis.readUTF();
+
+                System.out.println(received);
+
+                if (received.equals("Exit")) {
+                    System.out.println("Client " + this.s + " sends exit...");
+                    System.out.println("Closing this connection.");
+                    this.s.close();
+                    System.out.println("Connection closed");
+                    break;
+                }
+
+                // write on output stream based on the 
+                // answer from the client 
+                switch (received) {
+
+                    case "ackReceived":
+
+                        dos.writeUTF("thanks");
+                        break;
+                    case "HYk":
+
+                        dos.writeUTF("thanks");
+                        break;
+
+                    default:
+                        dos.writeUTF("Invalid input");
+                        break;
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            // closing resources 
+            this.dis.close();
+
+            this.dos.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+// ClientHandler class 
+class ServerSocketHandler5 extends Thread {
+
+    DateFormat fordate = new SimpleDateFormat("yyyy/MM/dd");
+    DateFormat fortime = new SimpleDateFormat("hh:mm:ss");
+    final DataInputStream dis1;
+    final DataOutputStream dos1;
+    final Socket s1;
+
+    final DataInputStream dis2;
+    final DataOutputStream dos2;
+    final Socket s2;
+
+    final DataInputStream dis;
+    final DataOutputStream dos;
+
+    long timeStamp;
+    String receivedMessage;
+
+    public int ackFromOthers = 0;
+    int position = -1;
+    int processingDone = 0;
+
+    // Constructor 
+    public ServerSocketHandler5(Socket s1, DataInputStream dis1, DataOutputStream dos1, Socket s2, DataInputStream dis2, DataOutputStream dos2, long time, String message, DataInputStream dis, DataOutputStream dos) {
+        this.s1 = s1;
+        this.dis1 = dis1;
+        this.dos1 = dos1;
+        this.s2 = s2;
+        this.dis2 = dis2;
+        this.dos2 = dos2;
+        this.timeStamp = time;
+        this.receivedMessage = message;
+
+        this.dis = dis;
+        this.dos = dos;
+
+        try {
+            // Ask user what he wants 
+            dos1.writeUTF("connectedwithserver," + timeStamp + "," + receivedMessage);
+
+        } catch (IOException ex) {
+            Logger.getLogger(ClientHandler5.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public void run() {
+        String received1;
+        String received2;
+
+        while (true) {
+            try {
+
+                received1 = dis1.readUTF();
+                received2 = dis2.readUTF();
+                System.out.println(received1);
+                System.out.println(received2);
+
+                switch (received1) {
+
+                    case "connected":
+                        //  ackFromOthers += 1;
+                        dos1.writeUTF("ok");
+                        break;
+
+                    case "ackreceived":
+                        dos1.writeUTF("okyoureceivedack");
+                        break;
+                    //     case "processedinserver2":
+                    //         dos1.writeUTF("processedinserver2gotit");
+                    //         break;
+
+                    case "ack":
+
+                        dos1.writeUTF("toreturn");
+                        break;
+
+                    case "ackto1okfromserver1":
+
+                        dos1.writeUTF("thanksackto1okfromserver1");
+                        break;
+
+                    case "Yesackto1okfromserver1":
+                        ackFromOthers += 1;
+                        dos1.writeUTF("thanksackto1okfromserver1");
+                        break;
+
+                    case "processin1done":
+                        processingDone += 1;
+                        System.out.println("processed count " + processingDone);
+                        if (processingDone == 2) {
+                            dos.writeUTF("success");
+                        }
+                        dos1.writeUTF("processin1doneThanks");
+                        break;
+
+                    default:
+                        dos1.writeUTF("Invalid input");
+                        break;
+                }
+
+                switch (received2) {
+
+                    case "connected":
+
+                        dos2.writeUTF("ok");
+                        break;
+
+                    case "ackreceived":
+                        dos2.writeUTF("okyoureceivedack");
+                        break;
+
+                    case "ack":
+
+                        dos2.writeUTF("toreturn");
+                        break;
+
+                    case "ackto3okfromserver3":
+
+                        dos2.writeUTF("thanksackto3okfromserver3");
+                        break;
+                    case "Yesackto2okfromserver3":
+                        ackFromOthers += 1;
+                        dos2.writeUTF("thanksackto2okfromserver3");
+                        break;
+
+                    case "processin3done":
+                        processingDone += 1;
+                        System.out.println("processed count " + processingDone);
+                        if (processingDone == 2) {
+                            dos.writeUTF("success");
+                        }
+                        dos2.writeUTF("processin3doneThanks");
+                        break;
+
+                    default:
+                        dos2.writeUTF("Invalid input");
+                        break;
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+}
+// ClientHandler class 
+
 class ServerHandler5 extends Thread {
 
     DateFormat fordate = new SimpleDateFormat("yyyy/MM/dd");
@@ -214,10 +480,7 @@ class ServerHandler5 extends Thread {
 
                         dos.writeUTF("ackto2okfromserver2");
                         break;
-                    case "connectedwithserver": // not working
-
-                        dos.writeUTF("connectedwithserver2Received");
-                        break;
+                   
                     case "okyoureceivedack":
                         toreturn = fortime.format(date);
                         dos.writeUTF(toreturn);
@@ -235,13 +498,13 @@ class ServerHandler5 extends Thread {
                     case "processin2":
                         for (int i = 0; i < NewLamportServer2.qList.size(); i++) {
                             QueueClass5 q = NewLamportServer2.qList.get(i);
-                            System.out.println( NewLamportServer2.qList.get(i).timestamp + ":: " + arrOfStr[1]);
-                            System.out.println( NewLamportServer2.qList.get(i).task + ":: " + arrOfStr[2]);
+                            System.out.println(NewLamportServer2.qList.get(i).timestamp + ":: " + arrOfStr[1]);
+                            System.out.println(NewLamportServer2.qList.get(i).task + ":: " + arrOfStr[2]);
                             if ((NewLamportServer2.qList.get(i).timestamp == Long.parseLong(arrOfStr[1])) && (arrOfStr[2].equals(NewLamportServer2.qList.get(i).task))) {
                                 System.out.println("foundHere" + i);
                                 //remove it from queue and perform the task now
-                                
-                                    String[] arrOfStr_task = arrOfStr[2].split("@", 5);
+
+                                String[] arrOfStr_task = arrOfStr[2].split("@", 5);
                                 System.out.println(arrOfStr_task[0]);
                                 if (arrOfStr_task[0].equals("write")) {
                                     System.out.println("Task detail" + arrOfStr[2] + "\n");
@@ -260,17 +523,16 @@ class ServerHandler5 extends Thread {
                                     }
                                 }
                                 NewLamportServer2.qList.remove(i);
-                                
+
                                 //
-                                 dos.writeUTF("processin2done");
-                                 //
+                                dos.writeUTF("processin2done");
+                                //
                             }
 
                         }
 
                         break;
-                        
-                        
+
                     default:
                         //dos.writeUTF("Invalid input"); 
                         break;
@@ -296,8 +558,19 @@ class QueueClass5 {
     public long timestamp;
     int serverId;
     public String task;
-    ClientHandler4 clientClassHandler;
-    ServerHandler5 serverHandler;
+    ClientHandler5 clientClassHandler = null;
+    ServerSocketHandler5 serverSocketHandler = null;
+    ServerHandler5 serverHandler = null;
+
+    // Constructor 
+    public QueueClass5(long timeStamp, int serverId, String task, ClientHandler5 c, ServerSocketHandler5 s) {
+        this.serverId = serverId;
+        this.timestamp = timeStamp;
+        this.task = task;
+        this.clientClassHandler = c;
+        this.serverSocketHandler = s;
+
+    }
 
     // Constructor 
     public QueueClass5(long timeStamp, int serverId, String task, ServerHandler5 s) {

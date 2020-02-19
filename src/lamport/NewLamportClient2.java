@@ -18,7 +18,7 @@ public class NewLamportClient2 {
     public static void main(String[] args) throws IOException {
         try {
 
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 1; i++) {
 
                 // getting localhost ip 
                 InetAddress ip = InetAddress.getByName("localhost");
@@ -35,7 +35,7 @@ public class NewLamportClient2 {
                 thread1.start();
 
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(10000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -73,7 +73,7 @@ class MyThread1 extends Thread {
         this.dis = dis;
         this.dos = dos;
         try {
-            dos.writeUTF("write@file1.txt@aa@client");
+            dos.writeUTF("write@file1.txt@bb@client");
         } catch (IOException ex) {
             Logger.getLogger(MyThread1.class.getName()).log(Level.SEVERE, null, ex);
         }
