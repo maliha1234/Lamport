@@ -73,7 +73,7 @@ class MyThread1 extends Thread {
         this.dis = dis;
         this.dos = dos;
         try {
-            dos.writeUTF("write@file1.txt@bb@client");
+            dos.writeUTF("first#write@file1.txt@bb@client");
         } catch (IOException ex) {
             Logger.getLogger(MyThread1.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -39,8 +39,11 @@ public class NewLamportServer1 {
                 System.out.println("A new client is connected : " + s);
                 String received = new DataInputStream(s.getInputStream()).readUTF();
                 System.out.println("in main" + received);
+                String[] arr = received.split("#", 5);
+                System.out.println(arr[0]);
+               
 
-                if (received.contains("client") && !received.contains("socket")) {
+                if (arr[0].contains("first")) {
                     // obtaining input and out streams 
                     DataInputStream dis = new DataInputStream(s.getInputStream());
                     DataOutputStream dos = new DataOutputStream(s.getOutputStream());
@@ -69,16 +72,39 @@ public class NewLamportServer1 {
                     // create a new thread object 
                     Thread t = new ClientHandler4(s, dis, dos);
 
-                    Thread sT = new ServerSocketHandler4(s1, dis1, dos1, s2, dis2, dos2, timeStamp, received, dis, dos);
+                    Thread sT = new ServerSocketHandler4(s1, dis1, dos1, s2, dis2, dos2, timeStamp, arr[1], dis, dos);
 
                     // Invoking the start() method 
                     t.start();
                     sT.start();
 
-                    QueueClass4 queueClass = new QueueClass4(timeStamp, 1, received, (ClientHandler4) t, (ServerSocketHandler4) sT);
+                    QueueClass4 queueClass = new QueueClass4(timeStamp, 1, arr[1], (ClientHandler4) t, (ServerSocketHandler4) sT);
 
                     qList.add(queueClass);
 
+                    sortQueue();
+                } else if (arr[0].contains("connectedwithserver")) {
+
+                    String[] arrOfStr = arr[1].split(",", 5);
+                    System.out.println(arrOfStr[0]);
+                    long timeStamp = Long.parseLong(arrOfStr[0]);
+                    String message = arrOfStr[1];
+                    // obtaining input and out streams 
+                    DataInputStream dis = new DataInputStream(s.getInputStream());
+                    DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+
+                    System.out.println("Assigning new thread for this client");
+
+                    // create a new thread object 
+                    Thread t = new ServerHandler4(s, dis, dos, timeStamp, message);
+                    QueueClass4 queueClass = new QueueClass4(timeStamp, 1, message, (ServerHandler4) t);
+
+                    qList.add(queueClass);
+
+                    dos.writeUTF("connected");
+
+                    // Invoking the start() method 
+                    t.start();
                     sortQueue();
                 } 
 
@@ -313,7 +339,7 @@ class ServerSocketHandler4 extends Thread {
 
         try {
             // Ask user what he wants 
-            dos1.writeUTF("connectedwithserver," + timeStamp + "," + receivedMessage);
+            dos1.writeUTF("connectedwithserver#" + timeStamp + "," + receivedMessage);
 
         } catch (IOException ex) {
             Logger.getLogger(ClientHandler4.class.getName()).log(Level.SEVERE, null, ex);

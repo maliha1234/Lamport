@@ -38,13 +38,56 @@ public class NewLamportServer2 {
                 System.out.println("A new client is connected : " + s);
                 String received = new DataInputStream(s.getInputStream()).readUTF();
                 System.out.println("in main" + received);
+                String[] arr = received.split("#", 5);
+                System.out.println(arr[0]);
 
-               if (received.contains("connectedwithserver")) {
+               if (arr[0].contains("first")) {
+                    // obtaining input and out streams 
+                    DataInputStream dis = new DataInputStream(s.getInputStream());
+                    DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 
-                    String[] arrOfStr = received.split(",", 5);
+                    System.out.println("Assigning new thread for this client");
+
+                    //server 2
+                    // getting localhost ip 
+                    InetAddress ip = InetAddress.getByName("localhost");
+                    // establish the connection with server port 5054 server 1
+                    Socket s1 = new Socket(ip, 5054);
+                    // obtaining input and out streams
+
+                    // obtaining input and out streams 
+                    DataInputStream dis1 = new DataInputStream(s1.getInputStream());
+                    DataOutputStream dos1 = new DataOutputStream(s1.getOutputStream());
+
+                    // server 3
+                    Socket s2 = new Socket(ip, 5052);
+                    // obtaining input and out streams
+
+                    // obtaining input and out streams 
+                    DataInputStream dis2 = new DataInputStream(s2.getInputStream());
+                    DataOutputStream dos2 = new DataOutputStream(s2.getOutputStream());
+
+                    long timeStamp = System.currentTimeMillis();
+                    // create a new thread object 
+                    Thread t = new ClientHandler5(s, dis, dos);
+
+                    Thread sT = new ServerSocketHandler5(s1, dis1, dos1, s2, dis2, dos2, timeStamp, arr[1], dis, dos);
+
+                    // Invoking the start() method 
+                    t.start();
+                    sT.start();
+
+                    QueueClass5 queueClass = new QueueClass5(timeStamp, 1, arr[1], (ClientHandler5) t, (ServerSocketHandler5) sT);
+
+                    qList.add(queueClass);
+
+                    sortQueue();
+                } else if (arr[0].contains("connectedwithserver")) {
+
+                    String[] arrOfStr = arr[1].split(",", 5);
                     System.out.println(arrOfStr[0]);
-                    long timeStamp = Long.parseLong(arrOfStr[1]);
-                    String message = arrOfStr[2];
+                    long timeStamp = Long.parseLong(arrOfStr[0]);
+                    String message = arrOfStr[1];
                     // obtaining input and out streams 
                     DataInputStream dis = new DataInputStream(s.getInputStream());
                     DataOutputStream dos = new DataOutputStream(s.getOutputStream());
@@ -79,7 +122,7 @@ public class NewLamportServer2 {
             public void run() {
 
                 try {
-                   System.out.println("Hello World" + qList);
+                    System.out.println("Hello World" + qList);
                     if (qList.size() > 0) {
                         QueueClass5 qClass = qList.get(0);
                         String task = qList.get(0).task;
@@ -89,7 +132,7 @@ public class NewLamportServer2 {
                             qClass.clientClassHandler.dos.writeUTF("acktoclient");
                         }
                         if (qClass.serverSocketHandler != null) {
-                            if (qClass.serverSocketHandler.ackFromOthers == 2 ) {
+                            if (qClass.serverSocketHandler.ackFromOthers == 2) {
                                 qList.remove(qClass);
 
                                 //1 is entering cS and asking other also
@@ -302,7 +345,7 @@ class ServerSocketHandler5 extends Thread {
 
         try {
             // Ask user what he wants 
-            dos1.writeUTF("connectedwithserver," + timeStamp + "," + receivedMessage);
+            dos1.writeUTF("connectedwithserver#" + timeStamp + "," + receivedMessage);
 
         } catch (IOException ex) {
             Logger.getLogger(ClientHandler5.class.getName()).log(Level.SEVERE, null, ex);
@@ -480,7 +523,7 @@ class ServerHandler5 extends Thread {
 
                         dos.writeUTF("ackto2okfromserver2");
                         break;
-                   
+
                     case "okyoureceivedack":
                         toreturn = fortime.format(date);
                         dos.writeUTF(toreturn);
