@@ -41,7 +41,7 @@ public class NewLamportServer2 {
                 String[] arr = received.split("#", 5);
                 System.out.println(arr[0]);
 
-               if (arr[0].contains("first")) {
+                if (arr[0].contains("first")) {
                     // obtaining input and out streams 
                     DataInputStream dis = new DataInputStream(s.getInputStream());
                     DataOutputStream dos = new DataOutputStream(s.getOutputStream());
@@ -126,12 +126,13 @@ public class NewLamportServer2 {
                     if (qList.size() > 0) {
                         QueueClass5 qClass = qList.get(0);
                         String task = qList.get(0).task;
-                        System.out.println("Hello World acks" + qClass.serverSocketHandler.ackFromOthers + "\n");
+
                         if (qClass.clientClassHandler != null) {
 
                             qClass.clientClassHandler.dos.writeUTF("acktoclient");
                         }
                         if (qClass.serverSocketHandler != null) {
+                            System.out.println("Hello World acks" + qClass.serverSocketHandler.ackFromOthers + "\n");
                             if (qClass.serverSocketHandler.ackFromOthers == 2) {
                                 qList.remove(qClass);
 
@@ -182,7 +183,7 @@ public class NewLamportServer2 {
                 }
 
             }
-        }, 0, 5000);
+        }, 0, 1000);
 
     }
 

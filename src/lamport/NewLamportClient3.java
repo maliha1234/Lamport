@@ -13,7 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 // Client class 
-public class NewLamportClient2 {
+public class NewLamportClient3 {
 
     public static void main(String[] args) throws IOException {
         try {
@@ -24,15 +24,15 @@ public class NewLamportClient2 {
                 InetAddress ip = InetAddress.getByName("localhost");
 
                 // establish the connection with server port 5056 
-                Socket s = new Socket(ip, 5054);
+                Socket s = new Socket(ip, 5051);
 
                 // obtaining input and out streams 
                 DataInputStream dis = new DataInputStream(s.getInputStream());
                 DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 
-                MyThread1 thread1 = new MyThread1(s, dis, dos);
+                MyThread2 thread2 = new MyThread2(s, dis, dos);
 
-                thread1.start();
+                thread2.start();
 
                 try {
                     Thread.sleep(10000);
@@ -41,11 +41,11 @@ public class NewLamportClient2 {
                 }
 
                 //call stopRunning() method whenever you want to stop a thread
-                thread1.stopRunning();
+                thread2.stopRunning();
 
-                if (thread1.result == null) {
+                if (thread2.result == null) {
                     System.out.println("This is fail....");
-                } else if (thread1.result.equals("success")) {
+                } else if (thread2.result.equals("success")) {
                     System.out.println("This is success....");
                 } 
 
@@ -59,7 +59,7 @@ public class NewLamportClient2 {
     }
 }
 
-class MyThread1 extends Thread {
+class MyThread2 extends Thread {
     //Initially setting the flag as true
 
     private volatile boolean flag = true;
@@ -68,14 +68,14 @@ class MyThread1 extends Thread {
     final Socket s;
     String result;
 
-    public MyThread1(Socket s, DataInputStream dis, DataOutputStream dos) {
+    public MyThread2(Socket s, DataInputStream dis, DataOutputStream dos) {
         this.s = s;
         this.dis = dis;
         this.dos = dos;
         try {
-            dos.writeUTF("first#write@file1.txt@bb@client");
+            dos.writeUTF("first#write@file1.txt@dddddd@client");
         } catch (IOException ex) {
-            Logger.getLogger(MyThread1.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MyThread2.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -150,7 +150,7 @@ class MyThread1 extends Thread {
             System.out.println("Stopped Running....");
             System.out.println("Stopped Running....");
         } catch (IOException ex) {
-            Logger.getLogger(MyThread1.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MyThread2.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }

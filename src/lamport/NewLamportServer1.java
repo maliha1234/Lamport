@@ -41,7 +41,6 @@ public class NewLamportServer1 {
                 System.out.println("in main" + received);
                 String[] arr = received.split("#", 5);
                 System.out.println(arr[0]);
-               
 
                 if (arr[0].contains("first")) {
                     // obtaining input and out streams 
@@ -106,7 +105,7 @@ public class NewLamportServer1 {
                     // Invoking the start() method 
                     t.start();
                     sortQueue();
-                } 
+                }
 
             } catch (Exception e) {
                 s.close();
@@ -162,12 +161,13 @@ public class NewLamportServer1 {
                     if (qList.size() > 0) {
                         QueueClass4 qClass = qList.get(0);
                         String task = qList.get(0).task;
-                        System.out.println("Hello World acks" + qClass.serverSocketHandler.ackFromOthers + "\n");
+
                         if (qClass.clientClassHandler != null) {
 
                             qClass.clientClassHandler.dos.writeUTF("acktoclient");
                         }
                         if (qClass.serverSocketHandler != null) {
+                            System.out.println("Hello World acks" + qClass.serverSocketHandler.ackFromOthers + "\n");
                             if (qClass.serverSocketHandler.ackFromOthers == 2) {
                                 qList.remove(qClass);
 
@@ -213,7 +213,7 @@ public class NewLamportServer1 {
                 }
 
             }
-        }, 0, 5000);
+        }, 0, 1000);
 
     }
 }
@@ -552,7 +552,7 @@ class ServerHandler4 extends Thread {
 
                         dos.writeUTF("ackt1okfromserver1");
                         break;
-                    
+
                     case "okyoureceivedack":
                         toreturn = fortime.format(date);
                         dos.writeUTF(toreturn);
