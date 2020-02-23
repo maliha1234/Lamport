@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 
-
 import java.io.*;
 import java.text.*;
 import java.util.*;
@@ -20,12 +19,26 @@ public class NewLamportClient1 {
 
             for (int i = 0; i < 2; i++) {
 
-                // getting localhost ip 
-                //           InetAddress ip = InetAddress.getByName("localhost");
-                InetAddress ip = InetAddress.getByName("dc01.utdallas.edu");
-                // establish the connection with server port 5056 
-                Socket s = new Socket(ip, 5054);
+                Random rand = new Random();
+                int x = rand.nextInt(1);
+                InetAddress ip;
+                Socket s;
 
+                if (x == 0) {
+
+                    // getting localhost ip 
+                    //           InetAddress ip = InetAddress.getByName("localhost");
+                    ip = InetAddress.getByName("dc01.utdallas.edu");
+                    // establish the connection with server port 5056 
+                    s = new Socket(ip, 5054);
+                } else  {
+                    // getting localhost ip 
+                    //           InetAddress ip = InetAddress.getByName("localhost");
+                    ip = InetAddress.getByName("dc02.utdallas.edu");
+                    // establish the connection with server port 5056 
+                    s = new Socket(ip, 5051);
+                } 
+                
                 // obtaining input and out streams 
                 DataInputStream dis = new DataInputStream(s.getInputStream());
                 DataOutputStream dos = new DataOutputStream(s.getOutputStream());
@@ -35,7 +48,7 @@ public class NewLamportClient1 {
                 thread1.start();
 
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

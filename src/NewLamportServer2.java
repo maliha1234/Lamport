@@ -184,7 +184,7 @@ public class NewLamportServer2 {
                 }
 
             }
-        }, 0, 1000);
+        }, 0, 100);
 
     }
 

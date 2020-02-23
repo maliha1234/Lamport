@@ -35,7 +35,7 @@ public class NewLamportClient3 {
                 thread1.start();
 
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
