@@ -357,110 +357,129 @@ class ServerSocketHandler5 extends Thread {
 
     @Override
     public void run() {
-        String received1;
-        String received2;
-
-        while (true) {
-            try {
-
-                received1 = dis1.readUTF();
-                received2 = dis2.readUTF();
-                System.out.println(received1);
-                System.out.println(received2);
-
-                String[] arrOfStr1 = received1.split(",", 5);
-                System.out.println(arrOfStr1[0]);
-                
-                String[] arrOfStr2 = received2.split(",", 5);
-                System.out.println(arrOfStr2[0]);
-               
-
-                switch (arrOfStr1[0]) {
-
-                    case "connected":
-                        //  ackFromOthers += 1;
-                        dos1.writeUTF("ok");
+        try {
+            String received1;
+            String received2;
+            
+            while (true) {
+                try {
+                    
+                    received1 = dis1.readUTF();
+                    received2 = dis2.readUTF();
+                    System.out.println(received1);
+                    System.out.println(received2);
+                    
+                    String[] arrOfStr1 = received1.split(",", 5);
+                    System.out.println(arrOfStr1[0]);
+                    
+                    String[] arrOfStr2 = received2.split(",", 5);
+                    System.out.println(arrOfStr2[0]);
+                    
+                    if (received1.equals("Exit")) {
+                        System.out.println("Client " + this.s1 + " sends exit...");
+                        System.out.println("Closing this connection.");
+                        this.s1.close();
+                        System.out.println("Connection closed");
                         break;
-
-                    case "ackreceived":
-                        dos1.writeUTF("okyoureceivedack");
-                        break;
-                    //     case "processedinserver2":
-                    //         dos1.writeUTF("processedinserver2gotit");
-                    //         break;
-
-                    case "ack":
-
-                        dos1.writeUTF("toreturn");
-                        break;
-
-                    case "ackto1okfromserver1":
-
-                        dos1.writeUTF("thanksackto1okfromserver1");
-                        break;
-
-                    case "Yesackto1okfromserver1":
-                        ackFromOthers += 1;
-                        dos1.writeUTF("thanksackto1okfromserver1");
-                        break;
-
-                    case "processin1done":
-                        processingDone += 1;
-                        System.out.println("processed count " + processingDone);
-                        if (processingDone == 2) {
-                            dos.writeUTF("success");
-                        }
-                        dos1.writeUTF("processin1doneThanks");
-                        break;
-
-                    default:
-                        dos1.writeUTF("Invalid input");
-                        break;
+                    }
+                    
+                    switch (arrOfStr1[0]) {
+                        
+                        case "connected":
+                            //  ackFromOthers += 1;
+                            dos1.writeUTF("ok");
+                            break;
+                            
+                        case "ackreceived":
+                            dos1.writeUTF("okyoureceivedack");
+                            break;
+                            //     case "processedinserver2":
+                            //         dos1.writeUTF("processedinserver2gotit");
+                            //         break;
+                            
+                        case "ack":
+                            
+                            dos1.writeUTF("toreturn");
+                            break;
+                            
+                        case "ackto1okfromserver1":
+                            
+                            dos1.writeUTF("thanksackto1okfromserver1");
+                            break;
+                            
+                        case "Yesackto1okfromserver1":
+                            ackFromOthers += 1;
+                            dos1.writeUTF("thanksackto1okfromserver1");
+                            break;
+                            
+                        case "processin1done":
+                            processingDone += 1;
+                            System.out.println("processed count " + processingDone);
+                            if (processingDone == 2) {
+                                dos.writeUTF("success");
+                            }
+                            dos1.writeUTF("processin1doneThanks");
+                            break;
+                            
+                        default:
+                            dos1.writeUTF("Invalid input");
+                            break;
+                    }
+                    
+                    switch (arrOfStr2[0]) {
+                        
+                        case "connected":
+                            
+                            dos2.writeUTF("ok");
+                            break;
+                            
+                        case "ackreceived":
+                            dos2.writeUTF("okyoureceivedack");
+                            break;
+                            
+                        case "ack":
+                            
+                            dos2.writeUTF("toreturn");
+                            break;
+                            
+                        case "ackto3okfromserver3":
+                            
+                            dos2.writeUTF("thanksackto3okfromserver3");
+                            break;
+                        case "Yesackto2okfromserver3":
+                            ackFromOthers += 1;
+                            dos2.writeUTF("thanksackto2okfromserver3");
+                            break;
+                            
+                        case "processin3done":
+                            processingDone += 1;
+                            System.out.println("processed count " + processingDone);
+                            if (processingDone == 2) {
+                                dos.writeUTF("success");
+                            }
+                            dos2.writeUTF("processin3doneThanks");
+                            break;
+                            
+                        default:
+                            dos2.writeUTF("Invalid input");
+                            break;
+                    }
+                    
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-
-                switch (arrOfStr2[0]) {
-
-                    case "connected":
-
-                        dos2.writeUTF("ok");
-                        break;
-
-                    case "ackreceived":
-                        dos2.writeUTF("okyoureceivedack");
-                        break;
-
-                    case "ack":
-
-                        dos2.writeUTF("toreturn");
-                        break;
-
-                    case "ackto3okfromserver3":
-
-                        dos2.writeUTF("thanksackto3okfromserver3");
-                        break;
-                    case "Yesackto2okfromserver3":
-                        ackFromOthers += 1;
-                        dos2.writeUTF("thanksackto2okfromserver3");
-                        break;
-
-                    case "processin3done":
-                        processingDone += 1;
-                        System.out.println("processed count " + processingDone);
-                        if (processingDone == 2) {
-                            dos.writeUTF("success");
-                        }
-                        dos2.writeUTF("processin3doneThanks");
-                        break;
-
-                    default:
-                        dos2.writeUTF("Invalid input");
-                        break;
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+            
+            this.s1.close();
+            dis1.close();
+            dos1.close();
+            s2.close();
+            dis2.close();
+            dos2.close();
+        } catch (IOException ex) {
+            Logger.getLogger(ServerSocketHandler5.class.getName()).log(Level.SEVERE, null, ex);
         }
+            
 
     }
 }
