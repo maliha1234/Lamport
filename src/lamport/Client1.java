@@ -19,10 +19,11 @@ public class Client1
             Scanner scn = new Scanner(System.in); 
               
             // getting localhost ip 
-            InetAddress ip = InetAddress.getByName("localhost"); 
+           // InetAddress ip = InetAddress.getByName("localhost"); 
+            InetAddress ip = InetAddress.getByName("dc01.utdallas.edu"); 
       
             // establish the connection with server port 5056 
-            Socket s = new Socket(ip, 5057); 
+            Socket s = new Socket(ip, 5056); 
        
             // obtaining input and out streams 
             DataInputStream dis = new DataInputStream(s.getInputStream()); 

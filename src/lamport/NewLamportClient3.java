@@ -21,7 +21,8 @@ public class NewLamportClient3 {
             for (int i = 0; i < 2; i++) {
 
                 // getting localhost ip 
-                InetAddress ip = InetAddress.getByName("localhost");
+                //     InetAddress ip = InetAddress.getByName("localhost");
+                InetAddress ip = InetAddress.getByName("dc02.utdallas.edu");
 
                 // establish the connection with server port 5056 
                 Socket s = new Socket(ip, 5051);
@@ -47,7 +48,7 @@ public class NewLamportClient3 {
                     System.out.println("This is fail....");
                 } else if (thread2.result.equals("success")) {
                     System.out.println("This is success....");
-                } 
+                }
 
                 // the following loop performs the exchange of 
                 // information between client and client handler 
