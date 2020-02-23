@@ -101,7 +101,7 @@ public class NewLamportServer1 {
 
                     qList.add(queueClass);
 
-                    dos.writeUTF("connected");
+                    dos.writeUTF("connected,"+ System.currentTimeMillis());
 
                     // Invoking the start() method 
                     t.start();
@@ -359,8 +359,15 @@ class ServerSocketHandler4 extends Thread {
                 received2 = dis2.readUTF();
                 System.out.println(received1);
                 System.out.println(received2);
+                
+                String[] arrOfStr1 = received1.split(",", 5);
+                System.out.println(arrOfStr1[0]);
+                
+                String[] arrOfStr2 = received2.split(",", 5);
+                System.out.println(arrOfStr2[0]);
+               
 
-                switch (received1) {
+                switch (arrOfStr1[0]) {
 
                     case "connected":
                         //  ackFromOthers += 1;
@@ -403,7 +410,7 @@ class ServerSocketHandler4 extends Thread {
                         break;
                 }
 
-                switch (received2) {
+                switch (arrOfStr2[0]) {
 
                     case "connected":
 
