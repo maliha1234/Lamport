@@ -213,7 +213,7 @@ public class NewLamportServer1 {
                 }
 
             }
-        }, 0, 1000);
+        }, 0, 100);
 
     }
 }
@@ -340,6 +340,8 @@ class ServerSocketHandler4 extends Thread {
         try {
             // Ask user what he wants 
             dos1.writeUTF("connectedwithserver#" + timeStamp + "," + receivedMessage);
+            dos2.writeUTF("connectedwithserver#" + timeStamp + "," + receivedMessage);
+            
 
         } catch (IOException ex) {
             Logger.getLogger(ClientHandler4.class.getName()).log(Level.SEVERE, null, ex);
