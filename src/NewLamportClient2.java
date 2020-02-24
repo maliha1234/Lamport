@@ -101,7 +101,7 @@ class MyThread1 extends Thread {
 
                         // printing date or time as requested by client
                         String received = dis.readUTF();
-                        System.out.println(received);
+                       // System.out.println(received);
 
                         switch (received) {
 

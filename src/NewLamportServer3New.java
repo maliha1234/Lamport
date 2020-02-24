@@ -19,9 +19,10 @@ public class NewLamportServer3New {
     public static Map<String, QueueClass6> threads = new HashMap<String, QueueClass6>();
 
     public static void main(String[] args) throws IOException {
-        // server is listening on port 5056 
+        // server is listening on port 5052 
         ServerSocket ss = new ServerSocket(5052);
 
+        // Start the queue thread
         if (flag == 0) {
             startQueueThread();
             flag = 1;
@@ -41,7 +42,7 @@ public class NewLamportServer3New {
                 String[] arr = received.split("#", 5);
                 System.out.println(arr[0]);
 
-                if (arr[0].contains("first")) {
+                if (arr[0].contains("first")) { // if received request from client 
                     // obtaining input and out streams 
                     DataInputStream dis = new DataInputStream(s.getInputStream());
                     DataOutputStream dos = new DataOutputStream(s.getOutputStream());
@@ -51,7 +52,7 @@ public class NewLamportServer3New {
                     //server 2
                     // getting localhost ip 
                     InetAddress ip = InetAddress.getByName("dc02.utdallas.edu");
-                    // establish the connection with server port 5058 
+                    // establish the connection with server port 5051 
                     Socket s1 = new Socket(ip, 5051);
                     // obtaining input and out streams
 
@@ -60,6 +61,7 @@ public class NewLamportServer3New {
                     DataOutputStream dos1 = new DataOutputStream(s1.getOutputStream());
 
                     InetAddress ip1 = InetAddress.getByName("dc01.utdallas.edu");
+                    // establish the connection with server port 5054
                     Socket s2 = new Socket(ip1, 5054);
                     // obtaining input and out streams
 
@@ -81,8 +83,8 @@ public class NewLamportServer3New {
 
                     qList.add(queueClass);
 
-                    sortQueue();
-                } else if (arr[0].contains("connectedwithserver")) {
+                    sortQueue(); // sort the queue
+                } else if (arr[0].contains("connectedwithserver")) { // received request from other server
 
                     String[] arrOfStr = arr[1].split(",", 5);
                     System.out.println(arrOfStr[0]);

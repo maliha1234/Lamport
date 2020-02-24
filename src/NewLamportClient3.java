@@ -18,7 +18,7 @@ public class NewLamportClient3 {
     public static void main(String[] args) throws IOException {
         try {
 
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < 20; i++) {
 
                 // getting localhost ip 
                 //           InetAddress ip = InetAddress.getByName("localhost");
@@ -35,7 +35,7 @@ public class NewLamportClient3 {
                 thread1.start();
 
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -100,7 +100,7 @@ class MyThread2 extends Thread {
 
                         // printing date or time as requested by client
                         String received = dis.readUTF();
-                        System.out.println(received);
+                      //  System.out.println(received);
 
                         switch (received) {
 

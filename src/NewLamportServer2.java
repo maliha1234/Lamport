@@ -19,8 +19,9 @@ public class NewLamportServer2 {
     public static int flag = 0;
 
     public static void main(String[] args) throws IOException {
-        // server is listening on port 5056 
+        // server is listening on port 5051
         ServerSocket ss = new ServerSocket(5051);
+        // Start the queue thread
         if (flag == 0) {
             startQueueThread();
             flag = 1;
@@ -41,7 +42,7 @@ public class NewLamportServer2 {
                 String[] arr = received.split("#", 5);
                 System.out.println(arr[0]);
 
-                if (arr[0].contains("first")) {
+                if (arr[0].contains("first")) { // if received request from client 
                     // obtaining input and out streams 
                     DataInputStream dis = new DataInputStream(s.getInputStream());
                     DataOutputStream dos = new DataOutputStream(s.getOutputStream());
@@ -82,8 +83,8 @@ public class NewLamportServer2 {
 
                     qList.add(queueClass);
 
-                    sortQueue();
-                } else if (arr[0].contains("connectedwithserver")) {
+                    sortQueue(); // sort queue
+                } else if (arr[0].contains("connectedwithserver")) { // received request from other server
 
                     String[] arrOfStr = arr[1].split(",", 5);
                     System.out.println(arrOfStr[0]);
