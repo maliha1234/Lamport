@@ -22,9 +22,9 @@ public class NewLamportClient3 {
 
                 // getting localhost ip 
                 //           InetAddress ip = InetAddress.getByName("localhost");
-                InetAddress ip = InetAddress.getByName("dc02.utdallas.edu");
+                InetAddress ip = InetAddress.getByName("dc01.utdallas.edu");
                 // establish the connection with server port 5056 
-                Socket s = new Socket(ip, 5051);
+                Socket s = new Socket(ip, 5054);
 
                 // obtaining input and out streams 
                 DataInputStream dis = new DataInputStream(s.getInputStream());
@@ -35,7 +35,7 @@ public class NewLamportClient3 {
                 thread1.start();
 
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(10000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

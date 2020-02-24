@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 
-
 import java.io.*;
 import java.text.*;
 import java.util.*;
@@ -13,19 +12,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 // Server class 
-public class NewLamportServer2 {
+public class NewLamportServer3New {
 
-    public static List<QueueClass5> qList = new ArrayList<>();
+    public static List<QueueClass6> qList = new ArrayList<>();
     public static int flag = 0;
+    public static Map<String, QueueClass6> threads = new HashMap<String, QueueClass6>();
 
     public static void main(String[] args) throws IOException {
         // server is listening on port 5056 
-        ServerSocket ss = new ServerSocket(5051);
+        ServerSocket ss = new ServerSocket(5052);
+
         if (flag == 0) {
             startQueueThread();
             flag = 1;
         }
-
         // running infinite loop for getting 
         // client request 
         while (true) {
@@ -50,18 +50,17 @@ public class NewLamportServer2 {
 
                     //server 2
                     // getting localhost ip 
-                    InetAddress ip = InetAddress.getByName("dc01.utdallas.edu");
-                    // establish the connection with server port 5054 server 1
-                    Socket s1 = new Socket(ip, 5054);
+                    InetAddress ip = InetAddress.getByName("dc02.utdallas.edu");
+                    // establish the connection with server port 5058 
+                    Socket s1 = new Socket(ip, 5051);
                     // obtaining input and out streams
 
                     // obtaining input and out streams 
                     DataInputStream dis1 = new DataInputStream(s1.getInputStream());
                     DataOutputStream dos1 = new DataOutputStream(s1.getOutputStream());
 
-                    InetAddress ip1 = InetAddress.getByName("dc03.utdallas.edu");
-                    // server 3
-                    Socket s2 = new Socket(ip1, 5052);
+                    InetAddress ip1 = InetAddress.getByName("dc01.utdallas.edu");
+                    Socket s2 = new Socket(ip1, 5054);
                     // obtaining input and out streams
 
                     // obtaining input and out streams 
@@ -70,15 +69,15 @@ public class NewLamportServer2 {
 
                     long timeStamp = System.currentTimeMillis();
                     // create a new thread object 
-                    Thread t = new ClientHandler5(s, dis, dos);
+                    Thread t = new ClientHandler6(s, dis, dos);
 
-                    Thread sT = new ServerSocketHandler5(s1, dis1, dos1, s2, dis2, dos2, timeStamp, arr[1], dis, dos);
+                    Thread sT = new ServerSocketHandler6(s1, dis1, dos1, s2, dis2, dos2, timeStamp, arr[1], dis, dos);
 
                     // Invoking the start() method 
                     t.start();
                     sT.start();
 
-                    QueueClass5 queueClass = new QueueClass5(timeStamp, 1, arr[1], (ClientHandler5) t, (ServerSocketHandler5) sT);
+                    QueueClass6 queueClass = new QueueClass6(timeStamp, 1, arr[1], (ClientHandler6) t, (ServerSocketHandler6) sT);
 
                     qList.add(queueClass);
 
@@ -96,12 +95,12 @@ public class NewLamportServer2 {
                     System.out.println("Assigning new thread for this client");
 
                     // create a new thread object 
-                    Thread t = new ServerHandler5(s, dis, dos, timeStamp, message);
-                    QueueClass5 queueClass = new QueueClass5(timeStamp, 1, message, (ServerHandler5) t);
+                    Thread t = new ServerHandler7(s, dis, dos, timeStamp, message);
+                    QueueClass6 queueClass = new QueueClass6(timeStamp, 1, message, (ServerHandler7) t);
 
                     qList.add(queueClass);
 
-                    dos.writeUTF("connected,"+ System.currentTimeMillis());
+                    dos.writeUTF("connected," + System.currentTimeMillis());
 
                     // Invoking the start() method 
                     t.start();
@@ -115,6 +114,41 @@ public class NewLamportServer2 {
         }
     }
 
+    public static void sortQueue() {
+
+        for (int j = 0; j < qList.size(); j++) {
+
+            for (int i = j + 1; i < qList.size(); i++) {
+
+                if (qList.get(i).timestamp < qList.get(j).timestamp) {
+
+                    QueueClass6 q = qList.get(j);
+
+                    qList.set(j, qList.get(i));
+
+                    qList.set(i, q);
+
+                }
+
+            }
+
+            for (int i = 0; i < qList.size(); i++) {
+                QueueClass6 q = qList.get(i);
+                if (qList.get(i).serverSocketHandler != null) {
+                    qList.get(i).serverSocketHandler.position = i;
+                }
+                if (qList.get(i).clientClassHandler != null) {
+                    qList.get(i).clientClassHandler.position = i;
+                }
+                if (qList.get(i).serverHandler != null) {
+                    qList.get(i).serverHandler.position = i;
+                }
+            }
+
+        }
+
+    }
+
     public static void startQueueThread() throws IOException {
         Timer t = new Timer();
         System.out.println("Hello World Timer ini");
@@ -125,7 +159,7 @@ public class NewLamportServer2 {
                 try {
                     System.out.println("Hello World" + qList);
                     if (qList.size() > 0) {
-                        QueueClass5 qClass = qList.get(0);
+                        QueueClass6 qClass = qList.get(0);
                         String task = qList.get(0).task;
 
                         if (qClass.clientClassHandler != null) {
@@ -138,8 +172,8 @@ public class NewLamportServer2 {
                                 qList.remove(qClass);
 
                                 //1 is entering cS and asking other also
-                                qClass.serverSocketHandler.dos1.writeUTF("processin1," + qClass.timestamp + "," + qClass.task);
-                                qClass.serverSocketHandler.dos2.writeUTF("processin3," + qClass.timestamp + "," + qClass.task);
+                                qClass.serverSocketHandler.dos1.writeUTF("processin2," + qClass.timestamp + "," + qClass.task);
+                                qClass.serverSocketHandler.dos2.writeUTF("processin1," + qClass.timestamp + "," + qClass.task);
                                 // do the task here
 
                                 String[] arrOfStr = task.split("@", 5);
@@ -162,72 +196,30 @@ public class NewLamportServer2 {
 
                                 //
                             } else {
-                                qClass.serverSocketHandler.dos1.writeUTF("Topackto1," + task);
-                                qClass.serverSocketHandler.dos2.writeUTF("Topackto3," + task);
+                                qClass.serverSocketHandler.dos1.writeUTF("Topackto2," + task);
+                                qClass.serverSocketHandler.dos2.writeUTF("Topackto1," + task);
                                 System.out.println("Hello World position" + qClass.serverSocketHandler.position + "\n");
                             }
 
                         }
-                        if (qClass.serverHandler != null) {
-                            // qClass.serverHandler.dos.writeUTF("processedinserver2");
-                            // qClass.serverHandler.dos2.writeUTF("ackto3," + task);
 
-                        }
-
-                        for (QueueClass5 qq : qList) {
+                        for (QueueClass6 qq : qList) {
                             System.out.println("Hello World" + qq.timestamp + "\n");
                         }
                     }
 
                 } catch (IOException ex) {
-                    Logger.getLogger(NewLamportServer2.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(NewLamportServer3New.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
             }
         }, 0, 1000);
 
     }
-
-    public static void sortQueue() {
-
-        for (int j = 0; j < qList.size(); j++) {
-
-            for (int i = j + 1; i < qList.size(); i++) {
-
-                if (qList.get(i).timestamp < qList.get(j).timestamp) {
-
-                    QueueClass5 q = qList.get(j);
-
-                    qList.set(j, qList.get(i));
-
-                    qList.set(i, q);
-
-                }
-
-            }
-
-            for (int i = 0; i < qList.size(); i++) {
-                QueueClass5 q = qList.get(i);
-                if (qList.get(i).serverSocketHandler != null) {
-                    qList.get(i).serverSocketHandler.position = i;
-                }
-                if (qList.get(i).clientClassHandler != null) {
-                    qList.get(i).clientClassHandler.position = i;
-                }
-
-                if (qList.get(i).serverHandler != null) {
-                    qList.get(i).serverHandler.position = i;
-                }
-
-            }
-
-        }
-
-    }
 }
 
 // ClientHandler class 
-class ClientHandler5 extends Thread {
+class ClientHandler6 extends Thread {
 
     DateFormat fordate = new SimpleDateFormat("yyyy/MM/dd");
     DateFormat fortime = new SimpleDateFormat("hh:mm:ss");
@@ -237,7 +229,7 @@ class ClientHandler5 extends Thread {
     int position = -1;
 
     // Constructor 
-    public ClientHandler5(Socket s, DataInputStream dis, DataOutputStream dos) {
+    public ClientHandler6(Socket s, DataInputStream dis, DataOutputStream dos) {
         this.s = s;
         this.dis = dis;
         this.dos = dos;
@@ -247,7 +239,7 @@ class ClientHandler5 extends Thread {
             dos.writeUTF("connectedwithclient");
 
         } catch (IOException ex) {
-            Logger.getLogger(ClientHandler5.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ClientHandler6.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -298,7 +290,6 @@ class ClientHandler5 extends Thread {
 
         try {
             // closing resources 
-            
             this.dis.close();
 
             this.dos.close();
@@ -310,7 +301,7 @@ class ClientHandler5 extends Thread {
 }
 
 // ClientHandler class 
-class ServerSocketHandler5 extends Thread {
+class ServerSocketHandler6 extends Thread {
 
     DateFormat fordate = new SimpleDateFormat("yyyy/MM/dd");
     DateFormat fortime = new SimpleDateFormat("hh:mm:ss");
@@ -333,7 +324,7 @@ class ServerSocketHandler5 extends Thread {
     int processingDone = 0;
 
     // Constructor 
-    public ServerSocketHandler5(Socket s1, DataInputStream dis1, DataOutputStream dos1, Socket s2, DataInputStream dis2, DataOutputStream dos2, long time, String message, DataInputStream dis, DataOutputStream dos) {
+    public ServerSocketHandler6(Socket s1, DataInputStream dis1, DataOutputStream dos1, Socket s2, DataInputStream dis2, DataOutputStream dos2, long time, String message, DataInputStream dis, DataOutputStream dos) {
         this.s1 = s1;
         this.dis1 = dis1;
         this.dos1 = dos1;
@@ -351,7 +342,7 @@ class ServerSocketHandler5 extends Thread {
             dos1.writeUTF("connectedwithserver#" + timeStamp + "," + receivedMessage);
 
         } catch (IOException ex) {
-            Logger.getLogger(ClientHandler5.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ClientHandler6.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -376,12 +367,12 @@ class ServerSocketHandler5 extends Thread {
                     System.out.println(arrOfStr2[0]);
                     
                     if (received1.equals("Exit")) {
-                        System.out.println("Client " + this.s1 + " sends exit...");
-                        System.out.println("Closing this connection.");
-                        this.s1.close();
-                        System.out.println("Connection closed");
-                        break;
-                    }
+                    System.out.println("Client " + this.s1 + " sends exit...");
+                    System.out.println("Closing this connection.");
+                    this.s1.close();
+                    System.out.println("Connection closed");
+                    break;
+                }
                     
                     switch (arrOfStr1[0]) {
                         
@@ -402,23 +393,23 @@ class ServerSocketHandler5 extends Thread {
                             dos1.writeUTF("toreturn");
                             break;
                             
-                        case "ackto1okfromserver1":
+                        case "ackto2okfromserver2":
                             
-                            dos1.writeUTF("thanksackto1okfromserver1");
+                            dos1.writeUTF("thanksackto2okfromserver2");
                             break;
                             
-                        case "Yesackto1okfromserver1":
+                        case "Yesackto2okfromserver2":
                             ackFromOthers += 1;
-                            dos1.writeUTF("thanksackto1okfromserver1");
+                            dos1.writeUTF("thanksackto2okfromserver2");
                             break;
                             
-                        case "processin1done":
+                        case "processin2done":
                             processingDone += 1;
                             System.out.println("processed count " + processingDone);
                             if (processingDone == 2) {
                                 dos.writeUTF("success");
                             }
-                            dos1.writeUTF("processin1doneThanks");
+                            dos1.writeUTF("processin2doneThanks");
                             break;
                             
                         default:
@@ -442,22 +433,22 @@ class ServerSocketHandler5 extends Thread {
                             dos2.writeUTF("toreturn");
                             break;
                             
-                        case "ackto3okfromserver3":
+                        case "ackto1okfromserver1":
                             
-                            dos2.writeUTF("thanksackto3okfromserver3");
+                            dos2.writeUTF("thanksackto1okfromserver1");
                             break;
-                        case "Yesackto3okfromserver3":
+                        case "Yesackto1okfromserver1":
                             ackFromOthers += 1;
-                            dos2.writeUTF("thanksackto3okfromserver3");
+                            dos2.writeUTF("thanksackto1okfromserver1");
                             break;
                             
-                        case "processin3done":
+                        case "processin1done":
                             processingDone += 1;
                             System.out.println("processed count " + processingDone);
                             if (processingDone == 2) {
                                 dos.writeUTF("success");
                             }
-                            dos2.writeUTF("processin3doneThanks");
+                            dos2.writeUTF("processin1doneThanks");
                             break;
                             
                         default:
@@ -468,24 +459,63 @@ class ServerSocketHandler5 extends Thread {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
             }
-            
+
             this.s1.close();
             dis1.close();
             dos1.close();
             s2.close();
             dis2.close();
             dos2.close();
-        } catch (IOException ex) {
-            Logger.getLogger(ServerSocketHandler5.class.getName()).log(Level.SEVERE, null, ex);
-        }
             
-
+            
+            // closing resources 
+        } catch (IOException ex) {
+            Logger.getLogger(ServerSocketHandler6.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       
     }
-}
-// ClientHandler class 
 
-class ServerHandler5 extends Thread {
+}
+
+/* 
+    public void setServerSocket(String task) {
+
+        try {
+
+            //server 2
+            // getting localhost ip 
+            InetAddress ip = InetAddress.getByName("localhost");
+            // establish the connection with server port 5058 
+            Socket s1 = new Socket(ip, 5058);
+            // obtaining input and out streams
+
+            dis1 = new DataInputStream(s1.getInputStream());
+            dos1 = new DataOutputStream(s1.getOutputStream());
+            dos1.writeUTF("socket" + "Server2" + task);
+            
+            //
+            
+            //
+
+            //server 3
+            // getting localhost ip 
+            InetAddress ip2 = InetAddress.getByName("localhost");
+            // establish the connection with server port 5059
+            Socket s2 = new Socket(ip2, 5059);
+            // obtaining input and out streams
+
+            dis2 = new DataInputStream(s2.getInputStream());
+            dos2 = new DataOutputStream(s2.getOutputStream());
+            dos2.writeUTF("socket" + "Server3" + task);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }*/
+class ServerHandler7 extends Thread {
 
     DateFormat fordate = new SimpleDateFormat("yyyy/MM/dd");
     DateFormat fortime = new SimpleDateFormat("hh:mm:ss");
@@ -498,7 +528,7 @@ class ServerHandler5 extends Thread {
     int position = -1;
 
     // Constructor 
-    public ServerHandler5(Socket s, DataInputStream dis, DataOutputStream dos, long time, String message) {
+    public ServerHandler7(Socket s, DataInputStream dis, DataOutputStream dos, long time, String message) {
         this.s = s;
         this.dis = dis;
         this.dos = dos;
@@ -546,11 +576,11 @@ class ServerHandler5 extends Thread {
 
                     case "ok":
 
-                        dos.writeUTF("okfromserver2");
+                        dos.writeUTF("okfromserver3");
                         break;
-                    case "ackto2":
+                    case "ackto3":
 
-                        dos.writeUTF("ackto2okfromserver2");
+                        dos.writeUTF("ackt3okfromserver3");
                         break;
 
                     case "okyoureceivedack":
@@ -558,21 +588,21 @@ class ServerHandler5 extends Thread {
                         dos.writeUTF(toreturn);
                         break;
 
-                    case "Topackto2":
+                    case "Topackto3":
 
                         if (this.position == 0) {
-                            dos.writeUTF("Yesackto2okfromserver2");
+                            dos.writeUTF("Yesackto3okfromserver3");
                         } else {
-                            dos.writeUTF("Noackto2okfromserver2");
+                            dos.writeUTF("Noackto3okfromserver3");
                         }
                         break;
 
-                    case "processin2":
-                        for (int i = 0; i < NewLamportServer2.qList.size(); i++) {
-                            QueueClass5 q = NewLamportServer2.qList.get(i);
-                            System.out.println(NewLamportServer2.qList.get(i).timestamp + ":: " + arrOfStr[1]);
-                            System.out.println(NewLamportServer2.qList.get(i).task + ":: " + arrOfStr[2]);
-                            if ((NewLamportServer2.qList.get(i).timestamp == Long.parseLong(arrOfStr[1])) && (arrOfStr[2].equals(NewLamportServer2.qList.get(i).task))) {
+                    case "processin3":
+                        for (int i = 0; i < NewLamportServer3New.qList.size(); i++) {
+                            QueueClass6 q = NewLamportServer3New.qList.get(i);
+                            System.out.println(NewLamportServer3New.qList.get(i).timestamp + ":: " + arrOfStr[1]);
+                            System.out.println(NewLamportServer3New.qList.get(i).task + ":: " + arrOfStr[2]);
+                            if ((NewLamportServer3New.qList.get(i).timestamp == Long.parseLong(arrOfStr[1])) && (arrOfStr[2].equals(NewLamportServer3New.qList.get(i).task))) {
                                 System.out.println("foundHere" + i);
                                 //remove it from queue and perform the task now
 
@@ -594,10 +624,10 @@ class ServerHandler5 extends Thread {
                                         System.out.println("exception occoured" + e);
                                     }
                                 }
-                                NewLamportServer2.qList.remove(i);
+                                NewLamportServer3New.qList.remove(i);
 
                                 //
-                                dos.writeUTF("processin2done");
+                                dos.writeUTF("processin3done");
                                 //
                             }
 
@@ -616,6 +646,7 @@ class ServerHandler5 extends Thread {
 
         try {
             // closing resources 
+            this.s.close();
             this.dis.close();
             this.dos.close();
 
@@ -625,17 +656,17 @@ class ServerHandler5 extends Thread {
     }
 }
 
-class QueueClass5 {
+class QueueClass6 {
 
     public long timestamp;
-    int serverId;
-    public String task;
-    ClientHandler5 clientClassHandler = null;
-    ServerSocketHandler5 serverSocketHandler = null;
-    ServerHandler5 serverHandler = null;
+    public int serverId;
+    String task;
+    ClientHandler6 clientClassHandler = null;
+    ServerSocketHandler6 serverSocketHandler = null;
+    ServerHandler7 serverHandler = null;
 
     // Constructor 
-    public QueueClass5(long timeStamp, int serverId, String task, ClientHandler5 c, ServerSocketHandler5 s) {
+    public QueueClass6(long timeStamp, int serverId, String task, ClientHandler6 c, ServerSocketHandler6 s) {
         this.serverId = serverId;
         this.timestamp = timeStamp;
         this.task = task;
@@ -645,13 +676,11 @@ class QueueClass5 {
     }
 
     // Constructor 
-    public QueueClass5(long timeStamp, int serverId, String task, ServerHandler5 s) {
+    public QueueClass6(long timeStamp, int serverId, String task, ServerHandler7 s) {
         this.serverId = serverId;
         this.timestamp = timeStamp;
         this.task = task;
-        // this.clientClassHandler = c;
         this.serverHandler = s;
 
     }
-
 }
