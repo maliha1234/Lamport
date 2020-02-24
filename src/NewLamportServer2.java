@@ -446,9 +446,9 @@ class ServerSocketHandler5 extends Thread {
                             
                             dos2.writeUTF("thanksackto3okfromserver3");
                             break;
-                        case "Yesackto2okfromserver3":
+                        case "Yesackto3okfromserver3":
                             ackFromOthers += 1;
-                            dos2.writeUTF("thanksackto2okfromserver3");
+                            dos2.writeUTF("thanksackto3okfromserver3");
                             break;
                             
                         case "processin3done":

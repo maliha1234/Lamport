@@ -17,13 +17,14 @@ public class NewLamportClient1 {
     public static void main(String[] args) throws IOException {
         try {
 
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < 20; i++) {
 
                 Random rand = new Random();
-                int x = rand.nextInt(1);
+                int x = rand.nextInt(2);
                 InetAddress ip;
                 Socket s;
 
+           //     System.out.println("choosing server...." + x+1);
                 if (x == 0) {
 
                     // getting localhost ip 

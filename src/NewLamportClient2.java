@@ -18,14 +18,14 @@ public class NewLamportClient2 {
     public static void main(String[] args) throws IOException {
         try {
 
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < 10; i++) {
 
                 
                 // getting localhost ip 
                 //           InetAddress ip = InetAddress.getByName("localhost");
-                InetAddress ip = InetAddress.getByName("dc01.utdallas.edu");
+                InetAddress ip = InetAddress.getByName("dc02.utdallas.edu");
                 // establish the connection with server port 5056 
-                Socket s = new Socket(ip, 5054);
+                Socket s = new Socket(ip, 5051);
 
                 // obtaining input and out streams 
                 DataInputStream dis = new DataInputStream(s.getInputStream());
